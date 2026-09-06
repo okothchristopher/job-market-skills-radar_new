@@ -23,6 +23,13 @@ print(c.execute(\"SELECT COUNT(*) FROM crawl_queue WHERE source='wayback' AND st
   sleep 120
 done
 
+echo "== re-running discovery so every configured archive year is queued"
+# The budget is per board PER YEAR. An earlier run allocated it per board, so
+# the first year listed consumed the whole allowance and 2024 was never queried
+# -- leaving only postings that had survived into 2025. Re-discovering here
+# picks up the years that were starved.
+"$JR" discover --sources wayback
+
 echo "== recovering URLs lost to transient network faults"
 "$JR" retry --sources wayback,fuzu,brightermonday,myjobmag
 "$JR" fetch --sources wayback
