@@ -14,8 +14,8 @@ afterwards. Two crawlers competing for connections is not worth the wall-clock.
 
 from __future__ import annotations
 
-import subprocess
 import sqlite3
+import subprocess
 import sys
 import time
 from pathlib import Path

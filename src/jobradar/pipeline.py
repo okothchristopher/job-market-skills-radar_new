@@ -254,8 +254,14 @@ def aggregate(config: Config, out_dir: str | None = None) -> tuple[dict, dict]:
     kenya_months = int(jobs.loc[jobs["source_group"] == "KE", "month"].nunique())
     settings = dif.DiffusionSettings.from_config(config)
     skill_diffusion, diagnostics = dif.build_diffusion(
-        skill_current, skill_month, settings, kenya_months_observed=kenya_months
+        skill_current,
+        skill_month,
+        settings,
+        kenya_months_observed=kenya_months,
+        skill_year=skill_year,
     )
+    # Test the trickle-down thesis rather than assuming it (PLAN.md section 11a).
+    diagnostics["backtest"] = dif.backtest_thesis(skill_year)
 
     frames = {
         "jobs": jobs,

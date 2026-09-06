@@ -187,6 +187,7 @@ def build_diffusion(
     skill_month: pd.DataFrame,
     settings: DiffusionSettings,
     kenya_months_observed: int = 0,
+    skill_year: pd.DataFrame | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Build the ``skill_diffusion`` frame plus a diagnostics dict.
 
@@ -238,9 +239,27 @@ def build_diffusion(
     pivot = pivot.merge(trend, on="skill", how="left")
 
     has_kenya_history = kenya_months_observed >= settings.min_months_for_lag
-    # Both need a Kenyan series. Live boards delete expired postings, so the
-    # collected Kenyan corpus is single-year; these stay null by design.
+
+    # The Kenyan trend is computable once the archive backfill supplies a
+    # series. It is measured over the SAME whole-year window as the global one:
+    # the Kenyan series ends 2025-12 while the global runs into 2026, so
+    # trailing-window trends would compare Kenya over 2025 against the world
+    # over 2026 and call the difference diffusion.
     pivot["kenya_trend_12m"] = pd.NA
+    if has_kenya_history and skill_year is not None and not skill_year.empty:
+        ke = year_over_year(skill_year, "KE", 2024, 2025)
+        if not ke.empty:
+            pivot = pivot.merge(
+                ke[["skill", "yoy_change"]].rename(columns={"yoy_change": "_ke_yoy"}),
+                on="skill",
+                how="left",
+            )
+            pivot["kenya_trend_12m"] = pivot["_ke_yoy"]
+            pivot = pivot.drop(columns=["_ke_yoy"])
+
+    # Still null: a cross-correlation lag estimate needs several years on both
+    # sides. Two overlapping years cannot locate a lag, and the backtest below
+    # shows why guessing would be wrong.
     pivot["estimated_lag_months"] = pd.NA
 
     classified = pivot.apply(lambda r: _classify(r, settings, has_kenya_history), axis=1)
@@ -313,3 +332,93 @@ def track_summary(diffusion: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
     return summary.sort_values("teach_ahead", ascending=False)
+
+
+def year_over_year(
+    skill_year: pd.DataFrame, source_group: str, from_year: int, to_year: int
+) -> pd.DataFrame:
+    """Change in share between two whole years, for one segment.
+
+    Preferred over a trailing-window trend whenever both segments are being
+    compared, because the windows must line up. The Kenyan series (backfilled
+    from archives) runs 2024-01 to 2025-12 while the global series runs into
+    2026; a trailing-6-month trend would therefore measure Kenya over 2025 and
+    the world over 2026 and present the difference as diffusion.
+
+    Absence in a year is a genuine zero: the postings existed and did not ask
+    for the skill.
+    """
+    if skill_year.empty:
+        return pd.DataFrame(columns=["skill", "share_from", "share_to", "yoy_change"])
+
+    seg = skill_year[(skill_year["source_group"] == source_group) & skill_year["usable"]]
+    if seg.empty:
+        return pd.DataFrame(columns=["skill", "share_from", "share_to", "yoy_change"])
+
+    wide = seg.pivot_table(index="skill", columns="year", values="pct_share", aggfunc="first")
+    if from_year not in wide or to_year not in wide:
+        return pd.DataFrame(columns=["skill", "share_from", "share_to", "yoy_change"])
+
+    out = pd.DataFrame(
+        {
+            "skill": wide.index,
+            "share_from": wide[from_year].fillna(0.0).to_numpy(),
+            "share_to": wide[to_year].fillna(0.0).to_numpy(),
+        }
+    )
+    out["yoy_change"] = out["share_to"] - out["share_from"]
+    return out
+
+
+def backtest_thesis(
+    skill_year: pd.DataFrame,
+    from_year: int = 2024,
+    to_year: int = 2025,
+    min_share: float = 0.01,
+    rise_threshold: float = 0.005,
+) -> dict:
+    """Test the trickle-down thesis instead of assuming it (PLAN.md §11a).
+
+    The claim under test: **skills that rise globally also rise in Kenya.** The
+    curriculum strategy rests on it, so it gets measured.
+
+    Reported as a hit rate — of the skills that rose globally over the window,
+    what fraction also rose in Kenya — alongside the correlation between the two
+    changes and a base rate. The base rate is what makes the hit rate meaningful:
+    if 70% of *all* skills rose in Kenya, a 70% hit rate among global risers is
+    no evidence of diffusion at all.
+    """
+    g = year_over_year(skill_year, "GLOBAL", from_year, to_year)
+    k = year_over_year(skill_year, "KE", from_year, to_year)
+    if g.empty or k.empty:
+        return {"error": "insufficient history in one or both segments"}
+
+    joined = g.merge(k, on="skill", suffixes=("_global", "_kenya"))
+    # Skills too small in both markets carry no signal either way.
+    joined = joined[
+        (joined["share_to_global"] >= min_share) | (joined["share_to_kenya"] >= min_share)
+    ]
+    if len(joined) < 10:
+        return {"error": f"only {len(joined)} comparable skills"}
+
+    risers = joined[joined["yoy_change_global"] >= rise_threshold]
+    hits = risers[risers["yoy_change_kenya"] > 0]
+    base = joined[joined["yoy_change_kenya"] > 0]
+
+    hit_rate = len(hits) / len(risers) if len(risers) else None
+    base_rate = len(base) / len(joined)
+
+    return {
+        "window": f"{from_year} -> {to_year}",
+        "comparable_skills": len(joined),
+        "global_risers": len(risers),
+        "risers_that_also_rose_in_kenya": len(hits),
+        "hit_rate": round(hit_rate, 3) if hit_rate is not None else None,
+        "base_rate_any_skill_rose_in_kenya": round(base_rate, 3),
+        "lift_over_base_rate": round(hit_rate - base_rate, 3) if hit_rate is not None else None,
+        "correlation": round(
+            float(joined["yoy_change_global"].corr(joined["yoy_change_kenya"])), 3
+        ),
+        "hits": sorted(hits["skill"].tolist()),
+        "misses": sorted(risers[risers["yoy_change_kenya"] <= 0]["skill"].tolist()),
+    }

@@ -219,13 +219,27 @@ class JobStore:
         sources = list(history_sources)
         if not sources:
             return []
-        placeholders = ", ".join("?" for _ in sources)
+
+        # Replayed sources are stored per board as "wayback_brightermonday", so
+        # the configured entry "wayback" has to match by prefix. Exact matching
+        # made `status` report no Kenyan history at all while the analysis layer
+        # -- which does match by prefix -- was already using thousands of
+        # backfilled postings. Two views of the same corpus disagreeing is worse
+        # than either being wrong alone.
+        clauses = []
+        params: list = []
+        for name in sources:
+            clauses.append("source = ?")
+            params.append(name)
+            clauses.append(r"source LIKE ? ESCAPE '\'")
+            params.append(rf"{name}\_%")
+
         with self._lock:
             rows = self._conn.execute(
-                f"SELECT source_group, year, COUNT(*) FROM jobs "
-                f"WHERE year IS NOT NULL AND source IN ({placeholders}) "
+                "SELECT source_group, year, COUNT(*) FROM jobs "
+                f"WHERE year IS NOT NULL AND ({' OR '.join(clauses)}) "
                 "GROUP BY 1, 2 ORDER BY 1, 2",
-                sources,
+                params,
             ).fetchall()
         return [(row[0], row[1], row[2]) for row in rows]
 

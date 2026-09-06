@@ -261,3 +261,28 @@ def test_replace_job_skills_overwrites_previous_extraction(store):
     store.replace_job_skills(job_id, [m("Excel")])  # corrected taxonomy
     store.commit()
     assert store.skill_match_count() == 1
+
+
+def test_history_counts_match_wayback_board_variants(store):
+    """Replayed sources are stored as wayback_{board}, so 'wayback' must match by
+    prefix. Exact matching made `status` report no Kenyan history while the
+    analysis layer was already using thousands of backfilled postings."""
+    store.upsert_jobs(
+        [make_job(source="hn_hiring", native_id="h1", date_posted=datetime(2024, 1, 1))]
+        + [
+            make_job(
+                source="wayback_brightermonday", native_id=f"w{i}", date_posted=datetime(2024, 6, 1)
+            )
+            for i in range(3)
+        ]
+        + [make_job(source="greenhouse", native_id="g1", date_posted=datetime(2024, 6, 1))]
+    )
+    counts = {(g, y): n for g, y, n in store.counts_by_source_group_year(["hn_hiring", "wayback"])}
+    assert counts[("KE", 2024)] == 4, "wayback_* variants must be counted"
+
+
+def test_history_counts_do_not_match_unrelated_prefixes(store):
+    store.upsert_jobs(
+        [make_job(source="waybackfill_other", native_id="x1", date_posted=datetime(2024, 1, 1))]
+    )
+    assert store.counts_by_source_group_year(["wayback"]) == []
