@@ -1,0 +1,519 @@
+<title>Nairobi Skills Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  /* ---- Light palette. Every token declared here, before any override. ----
+     Kenya reads warm (local, earth), Global reads cool (distant). The two-series
+     colour is the argument, not decoration. Neutrals carry a faint teal bias so
+     they read as chosen rather than inherited grey. */
+  :root {
+    --ground:        #F6F8F7;
+    --surface:       #FFFFFF;
+    --surface-sunk:  #EDF1EF;
+    --line:          #D6DEDA;
+    --line-soft:     #E5EBE8;
+    --text:          #171C1A;
+    --text-2:        #4A5551;
+    --text-3:        #74807B;
+
+    --accent:        #0F6E5C;   /* deep teal — structure, links, rules */
+    --accent-soft:   #DCEAE5;
+
+    --kenya:         #B4622F;   /* warm ochre */
+    --kenya-soft:    #F2E2D6;
+    --global:        #2F6786;   /* cool slate */
+    --global-soft:   #DCE7ED;
+
+    --add:           #A2651B;
+    --expand:        #0F6E5C;
+    --hold:          #4A5551;
+    --watch:         #5C6B8A;
+    --retire:        #94413C;
+
+    --caution-bg:    #FBF3E4;
+    --caution-line:  #E2C489;
+    --caution-text:  #6A4E17;
+
+    --shadow: 0 1px 2px rgba(23,28,26,.05), 0 6px 20px -12px rgba(23,28,26,.16);
+    --radius: 10px;
+    --measure: 68ch;
+  }
+
+  /* System-dark (no stamp) — guarded so an explicit light choice still wins. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:        #101413;
+      --surface:       #171D1B;
+      --surface-sunk:  #1E2523;
+      --line:          #2C3634;
+      --line-soft:     #232B29;
+      --text:          #E8EEEB;
+      --text-2:        #A9B5B1;
+      --text-3:        #7C8783;
+
+      --accent:        #4FBFA5;
+      --accent-soft:   #17332C;
+
+      --kenya:         #E08B54;
+      --kenya-soft:    #33221A;
+      --global:        #6FB2D6;
+      --global-soft:   #172830;
+
+      --add:           #D9A247;
+      --expand:        #4FBFA5;
+      --hold:          #A9B5B1;
+      --watch:         #92A2C4;
+      --retire:        #D98782;
+
+      --caution-bg:    #241E12;
+      --caution-line:  #574524;
+      --caution-text:  #E2C489;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+    }
+  }
+
+  /* Explicit dark choice — wins over a light OS. */
+  :root[data-theme="dark"] {
+    --ground:        #101413;
+    --surface:       #171D1B;
+    --surface-sunk:  #1E2523;
+    --line:          #2C3634;
+    --line-soft:     #232B29;
+    --text:          #E8EEEB;
+    --text-2:        #A9B5B1;
+    --text-3:        #7C8783;
+
+    --accent:        #4FBFA5;
+    --accent-soft:   #17332C;
+
+    --kenya:         #E08B54;
+    --kenya-soft:    #33221A;
+    --global:        #6FB2D6;
+    --global-soft:   #172830;
+
+    --add:           #D9A247;
+    --expand:        #4FBFA5;
+    --hold:          #A9B5B1;
+    --watch:         #92A2C4;
+    --retire:        #D98782;
+
+    --caution-bg:    #241E12;
+    --caution-line:  #574524;
+    --caution-text:  #E2C489;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -14px rgba(0,0,0,.7);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--text);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  h1, h2, h3 {
+    font-family: Newsreader, ui-serif, Georgia, serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+    line-height: 1.15;
+  }
+  h1 { font-size: clamp(2rem, 4.4vw, 3rem); letter-spacing: -.015em; }
+  h2 { font-size: clamp(1.4rem, 2.4vw, 1.85rem); letter-spacing: -.01em; }
+  h3 { font-size: 1.08rem; }
+  p  { margin: 0; max-width: var(--measure); }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .72rem;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .num { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+  /* ---------------------------------------------------------------- header */
+  header { display: flex; flex-direction: column; gap: 16px; }
+  .lede { font-size: 1.12rem; color: var(--text-2); max-width: var(--measure); }
+
+  .facts {
+    display: flex; flex-wrap: wrap; gap: 0;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden; margin-top: 8px;
+  }
+  .fact { flex: 1 1 150px; padding: 14px 18px; border-right: 1px solid var(--line-soft); }
+  .fact:last-child { border-right: 0; }
+  .fact dt { font-size: .74rem; color: var(--text-3); letter-spacing: .04em; }
+  .fact dd { margin: 2px 0 0; font-size: 1.32rem; font-weight: 500; }
+
+  /* ------------------------------------------------------------- the caveat */
+  .caution {
+    margin-top: 40px;
+    background: var(--caution-bg);
+    border: 1px solid var(--caution-line);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .caution h2 { font-size: 1.3rem; color: var(--caution-text); }
+  .caution p { color: var(--caution-text); }
+  .caution .num { font-weight: 500; }
+
+  .evidence {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px; background: var(--caution-line);
+    border: 1px solid var(--caution-line); border-radius: 8px; overflow: hidden;
+  }
+  .evidence div { background: var(--caution-bg); padding: 12px 14px; }
+  .evidence dt { font-size: .72rem; color: var(--caution-text); opacity: .8; }
+  .evidence dd { margin: 3px 0 0; font-size: 1.15rem; font-weight: 500; color: var(--caution-text); }
+
+  /* ------------------------------------------------------------ the chart */
+  section { margin-top: 56px; }
+  .sec-head { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+
+  .legend { display: flex; gap: 20px; align-items: center; font-size: .82rem; color: var(--text-2); }
+  .key { display: inline-flex; align-items: center; gap: 7px; }
+  .swatch { width: 22px; height: 9px; border-radius: 2px; display: inline-block; }
+
+  .chart { display: flex; flex-direction: column; gap: 2px; }
+  .row {
+    display: grid;
+    grid-template-columns: minmax(140px, 210px) 1fr minmax(96px, auto);
+    gap: 16px; align-items: center;
+    padding: 9px 12px; border-radius: 7px;
+  }
+  .row:nth-child(odd) { background: var(--surface-sunk); }
+  .row-name { font-size: .9rem; font-weight: 500; }
+  .bars { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+  .bar { height: 11px; border-radius: 2px; min-width: 2px; position: relative; }
+  .bar.ke { background: var(--kenya); }
+  .bar.gl { background: var(--global); }
+  .bar-track { display: flex; align-items: center; gap: 8px; }
+  .bar-val { font-size: .74rem; color: var(--text-3); }
+  .gapcell { text-align: right; font-size: .84rem; }
+  .gap-pos { color: var(--global); }
+  .gap-neg { color: var(--kenya); }
+
+  .scale-note { margin-top: 14px; font-size: .82rem; color: var(--text-3); max-width: var(--measure); }
+
+  /* --------------------------------------------------------- programme cards */
+  .tracks { display: flex; flex-direction: column; gap: 14px; }
+  .track {
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface); overflow: hidden;
+  }
+  .track > summary {
+    list-style: none; cursor: pointer; padding: 16px 20px;
+    display: grid; grid-template-columns: 1fr auto auto; gap: 18px; align-items: baseline;
+  }
+  .track > summary::-webkit-details-marker { display: none; }
+  .track > summary:hover { background: var(--surface-sunk); }
+  .track > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .track-title { font-family: Newsreader, serif; font-size: 1.15rem; font-weight: 600; }
+  .mini { font-size: .8rem; color: var(--text-3); }
+  .mini b { font-weight: 500; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+  .mini .ke-t { color: var(--kenya); }
+  .mini .gl-t { color: var(--global); }
+  .chev { color: var(--text-3); font-size: .8rem; transition: transform .18s ease; }
+  .track[open] .chev { transform: rotate(90deg); }
+
+  .track-body { padding: 4px 20px 20px; border-top: 1px solid var(--line-soft); }
+
+  .actions { display: flex; flex-direction: column; gap: 18px; margin-top: 16px; }
+  .action-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .tag {
+    font-family: "IBM Plex Mono", monospace; font-size: .68rem; letter-spacing: .1em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 4px;
+    border: 1px solid currentColor; font-weight: 500;
+  }
+  .tag.add { color: var(--add); } .tag.expand { color: var(--expand); }
+  .tag.hold { color: var(--hold); } .tag.watch { color: var(--watch); }
+  .tag.retire { color: var(--retire); }
+  .action-why { font-size: .84rem; color: var(--text-3); }
+
+  table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+  .tbl-scroll { overflow-x: auto; }
+  th {
+    text-align: right; font-weight: 500; font-size: .72rem; color: var(--text-3);
+    letter-spacing: .05em; text-transform: uppercase;
+    padding: 6px 10px; border-bottom: 1px solid var(--line);
+  }
+  th:first-child { text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--line-soft); text-align: right; }
+  td:first-child { text-align: left; font-weight: 500; }
+  tbody tr:last-child td { border-bottom: 0; }
+  .v-ke { color: var(--kenya); }
+  .v-gl { color: var(--global); }
+  .up { color: var(--expand); } .down { color: var(--retire); } .flat { color: var(--text-3); }
+  .empty { font-size: .88rem; color: var(--text-3); padding: 14px 0 2px; }
+
+  /* ------------------------------------------------------------- method */
+  .method { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+  .method h3 { margin-bottom: 6px; }
+  .method p { font-size: .9rem; color: var(--text-2); }
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: .82rem; color: var(--text-3);
+  }
+  a { color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  @media (max-width: 720px) {
+    .row { grid-template-columns: 1fr; gap: 8px; }
+    .gapcell { text-align: left; }
+    .track > summary { grid-template-columns: 1fr auto; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">Zindua School · curriculum evidence · September 2026</span>
+    <h1>What Nairobi is actually hiring for</h1>
+    <p class="lede">
+      Skill demand measured across 42,546 job postings — Kenyan boards and global
+      employer boards — mapped onto Zindua's twelve programmes. Built to test whether
+      global demand predicts Kenyan demand, and reported straight when it didn't.
+    </p>
+
+    <dl class="facts">
+      <div class="fact"><dt>Postings analysed</dt><dd class="num">42,546</dd></div>
+      <div class="fact"><dt>Skills tracked</dt><dd class="num">146</dd></div>
+      <div class="fact"><dt>Kenyan history</dt><dd class="num">24 months</dd></div>
+      <div class="fact"><dt>Programmes</dt><dd class="num">12</dd></div>
+    </dl>
+  </header>
+
+  <div class="caution">
+    <h2>The premise didn't survive testing</h2>
+    <p>
+      This work started from a reasonable assumption: skills that rise globally
+      trickle down to Kenya after a lag, so teaching ahead of the local market
+      buys a head start. <strong>The data does not support that.</strong>
+    </p>
+    <dl class="evidence">
+      <div><dt>Global risers that also rose in Kenya</dt><dd class="num">82.6%</dd></div>
+      <div><dt>But <em>any</em> skill rising in Kenya</dt><dd class="num">74.2%</dd></div>
+      <div><dt>Actual lift over that base rate</dt><dd class="num">+8.5 pts</dd></div>
+      <div><dt>Same-year rank correlation</dt><dd class="num">+0.25</dd></div>
+      <div><dt>With a one-year lag applied</dt><dd class="num">−0.20</dd></div>
+    </dl>
+    <p>
+      The headline 82.6% looks like strong confirmation until you notice that
+      three-quarters of <em>all</em> skills rose in Kenya over the same window.
+      Knowing a skill rose globally buys roughly 8 points of prediction, not 83.
+      And applying a one-year lag makes the forecast <em>worse than chance</em> —
+      the two markets move together, weakly, rather than one leading the other.
+    </p>
+    <p>
+      What is real, and large, is the <strong>level</strong> gap: AI Engineering
+      skills appear in 39.3% of global technical postings and 3.7% of Kenyan ones,
+      and that gap is not closing year on year. Kenya reads as a
+      <em>different</em> market, not a delayed one — which makes the programme
+      mix below a strategic choice rather than a timing one.
+    </p>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Programme demand</span>
+      <h2>Sized by the market each programme actually serves</h2>
+      <p>
+        Share of technical postings asking for at least one skill the programme
+        teaches. Ordered by Kenyan demand, because that is the market Zindua
+        graduates enter first.
+      </p>
+      <div class="legend">
+        <span class="key"><span class="swatch" style="background:var(--kenya)"></span> Kenya</span>
+        <span class="key"><span class="swatch" style="background:var(--global)"></span> Global</span>
+      </div>
+    </div>
+    <div class="chart" id="chart"></div>
+    <p class="scale-note">
+      Coverage, not the average of a programme's skills. Cybersecurity is why:
+      its nine skills each sit between 1% and 4.6%, so an average makes the
+      programme look negligible — while security language appears in 5.0% of all
+      global postings. Demand there is real but spread thin across many named skills.
+    </p>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Per programme</span>
+      <h2>What to add, hold, watch and retire</h2>
+      <p>
+        Every tracked skill, classified against both markets. <strong>Add</strong>
+        means a large and growing global gap — a strategic bet on a market that is
+        different, not a scheduled arrival.
+      </p>
+    </div>
+    <div class="tracks" id="tracks"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="eyebrow">Method</span>
+      <h2>How these numbers were built — and where they stop</h2>
+    </div>
+    <div class="method">
+      <div>
+        <h3>Documents, not search counts</h3>
+        <p>
+          Full job descriptions were collected once, then skills extracted offline
+          against a 146-entry taxonomy. Search-result counts carry no date and
+          cannot support a trend; documents can.
+        </p>
+      </div>
+      <div>
+        <h3>A comparable denominator</h3>
+        <p>
+          80% of global postings mention a technical skill against 27% of Kenyan
+          ones — the global sources are technology companies, Kenyan boards carry
+          every sector. All shares are of <em>technical</em> postings, or corpus
+          composition alone would manufacture a gap.
+        </p>
+      </div>
+      <div>
+        <h3>Calibrated against known-diffused skills</h3>
+        <p>
+          81% of skills show a positive global-minus-Kenya gap, which is mostly
+          source bias. The median gap across seven fully-diffused skills — SQL,
+          Git, Java, Excel, HTML, CSS, Linux — is subtracted from every figure.
+        </p>
+      </div>
+      <div>
+        <h3>Kenyan history came from archives</h3>
+        <p>
+          Live boards delete expired postings, so a fresh crawl returns 2026 only.
+          Twenty-four months of Kenyan history (2024–25) were recovered by
+          replaying Wayback Machine snapshots through the same parser.
+        </p>
+      </div>
+      <div>
+        <h3>What is deliberately not reported</h3>
+        <p>
+          No diffusion lag estimate. Two overlapping years cannot locate a lag,
+          and the backtest above shows a one-year guess would point the wrong way.
+          The column stays empty rather than filled with a plausible number.
+        </p>
+      </div>
+      <div>
+        <h3>Known limits</h3>
+        <p>
+          Kenyan 2026 figures come from live boards rather than archives, a
+          different collection method. Skill extraction is regex-based and
+          validated on a sample; novel tools it has never seen are invisible to it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated by <span class="num">job-market-skills-radar</span> · 42,546 postings ·
+    146 skills · Kenyan history 2024-01 → 2025-12 · global history 2024-01 → 2026-09.
+    Sources: BrighterMonday, MyJobMag, Fuzu, Greenhouse, Ashby, Hacker News
+    “Who is hiring?”, Arbeitnow, Himalayas, and Jobicy
+    (<a href="https://jobicy.com">jobicy.com</a>).
+  </footer>
+</div>
+
+<script id="data" type="application/json">{"diagnostics":{"calibration_offset":0.00378,"calibration_skills_found":7,"calibration_applied":true,"kenya_months_observed":42,"kenya_history_sufficient":true,"lag_estimate_enabled":false,"skills":146,"positive_raw_gap_share":0.808,"total_postings":42546},"status_counts":{"low_demand":104,"established_both":12,"kenya_specific":11,"global_only":8,"teach_ahead":4,"declining_both":4,"arriving":3},"backtest":{"window":"2024 -> 2025","comparable_skills":89,"global_risers":23,"risers_that_also_rose_in_kenya":19,"hit_rate":0.826,"base_rate_any_skill_rose_in_kenya":0.742,"lift_over_base_rate":0.085,"correlation":0.093},"backtest_hits":["AI Agents","AWS","BigQuery","Claude","Docker","FastAPI","GitHub Actions","Google Cloud","Grafana","Kubernetes","Node.js","OpenAI API","PostgreSQL","Prometheus","Python","Rust","Selenium","System Design","TypeScript"],"backtest_misses":["CI/CD","LLM","Next.js","PyTorch"],"tracks":[{"track":"Data Analytics","ke":0.6612,"gl":0.2349,"n":10,"actions":{"watch":[{"skill":"A/B Testing","gl":0.0719,"ke":0.0099,"gt":-0.0015,"kt":0.0142}],"hold":[{"skill":"SQL","gl":0.1197,"ke":0.0788,"gt":0.0031,"kt":0.071},{"skill":"SQL Server","gl":0.0049,"ke":0.0197,"gt":-0.0004,"kt":0.0277},{"skill":"Power BI","gl":0.0091,"ke":0.0378,"gt":-0.0012,"kt":0.0176},{"skill":"Oracle","gl":0.0144,"ke":0.046,"gt":0.0014,"kt":-0.0048},{"skill":"Statistics","gl":0.0356,"ke":0.1379,"gt":0.0037,"kt":-0.0202},{"skill":"Excel","gl":0.0389,"ke":0.4603,"gt":-0.0033,"kt":-0.08}]}},{"track":"Software Engineering Core","ke":0.2436,"gl":0.5591,"n":43,"actions":{"expand":[{"skill":"Python","gl":0.2789,"ke":0.0701,"gt":0.0371,"kt":0.0313}],"watch":[{"skill":"System Design","gl":0.1301,"ke":0.0126,"gt":0.0023,"kt":0.0036},{"skill":"Go","gl":0.0682,"ke":0.0066,"gt":-0.0059,"kt":0.0008},{"skill":"Rust","gl":0.0538,"ke":0.0049,"gt":0.01,"kt":0.0012}],"retire":[{"skill":"Node.js","gl":0.0622,"ke":0.0104,"gt":-0.0157,"kt":0.0054}],"add":[{"skill":"C++","gl":0.0587,"ke":0.0082,"gt":0.0101,"kt":0.0016},{"skill":"GitHub","gl":0.0512,"ke":0.0115,"gt":0.0206,"kt":0.0009}],"hold":[{"skill":"Java","gl":0.0677,"ke":0.0334,"gt":0.006,"kt":0.0198},{"skill":"JavaScript","gl":0.0575,"ke":0.0252,"gt":-0.0036,"kt":0.0021},{"skill":"Git","gl":0.0249,"ke":0.0224,"gt":0.0055,"kt":-0.0056},{"skill":"C#","gl":0.023,"ke":0.0268,"gt":0.0021,"kt":0.0216},{"skill":"Payment Integration","gl":0.0052,"ke":0.0285,"gt":0.0023,"kt":-0.0214},{"skill":"M-Pesa","gl":0.0,"ke":0.0432,"gt":null,"kt":-0.0151}]}},{"track":"Product Management","ke":0.1894,"gl":0.1926,"n":4,"actions":{"hold":[{"skill":"Product Management","gl":0.103,"ke":0.0213,"gt":-0.0027,"kt":0.0151},{"skill":"Agile","gl":0.044,"ke":0.0668,"gt":0.0051,"kt":-0.0134},{"skill":"Stakeholder Management","gl":0.0446,"ke":0.1106,"gt":0.0015,"kt":0.0782}]}},{"track":"DevOps Engineering","ke":0.0832,"gl":0.2942,"n":14,"actions":{"watch":[{"skill":"Kubernetes","gl":0.1292,"ke":0.0148,"gt":-0.0035,"kt":0.0116},{"skill":"Terraform","gl":0.0604,"ke":0.0082,"gt":0.0039,"kt":0.0096},{"skill":"Docker","gl":0.0556,"ke":0.0181,"gt":0.0049,"kt":0.0143}],"expand":[{"skill":"CI/CD","gl":0.0864,"ke":0.0296,"gt":0.0161,"kt":-0.0016}],"hold":[{"skill":"Azure","gl":0.0924,"ke":0.0416,"gt":0.0082,"kt":0.0161},{"skill":"Linux","gl":0.062,"ke":0.0241,"gt":0.0093,"kt":0.0048}]}},{"track":"Data Engineering","ke":0.0794,"gl":0.3604,"n":16,"actions":{"hold":[{"skill":"AWS","gl":0.1874,"ke":0.0356,"gt":0.001,"kt":0.0316},{"skill":"PostgreSQL","gl":0.0904,"ke":0.0241,"gt":0.0049,"kt":0.0216}],"retire":[{"skill":"Google Cloud","gl":0.1141,"ke":0.0175,"gt":-0.0149,"kt":0.0052}]}},{"track":"Frontend Development","ke":0.0575,"gl":0.2544,"n":15,"actions":{"retire":[{"skill":"TypeScript","gl":0.1365,"ke":0.0104,"gt":-0.0251,"kt":0.0096},{"skill":"React","gl":0.1326,"ke":0.0126,"gt":-0.0251,"kt":-0.0052}],"hold":[{"skill":"Accessibility","gl":0.0342,"ke":0.0241,"gt":-0.0041,"kt":-0.0039}]}},{"track":"Data Science Core","ke":0.0438,"gl":0.24,"n":14,"actions":{"hold":[{"skill":"Machine Learning","gl":0.2235,"ke":0.035,"gt":0.0011,"kt":0.0107},{"skill":"R","gl":0.0018,"ke":0.0082,"gt":0.0001,"kt":0.0005}]}},{"track":"AI Engineering","ke":0.0367,"gl":0.3935,"n":13,"actions":{"add":[{"skill":"AI Agents","gl":0.218,"ke":0.0055,"gt":0.0505,"kt":0.0065},{"skill":"Claude","gl":0.0836,"ke":0.0055,"gt":0.0505,"kt":0.0016}],"expand":[{"skill":"LLM","gl":0.1484,"ke":0.0241,"gt":0.0279,"kt":-0.0025}],"watch":[{"skill":"OpenAI API","gl":0.0998,"ke":0.0093,"gt":0.0068,"kt":0.0081}]}},{"track":"Cybersecurity Core","ke":0.0339,"gl":0.0918,"n":9,"actions":{}},{"track":"Data Storytelling","ke":0.0257,"gl":0.0148,"n":3,"actions":{"hold":[{"skill":"Data Visualization","gl":0.0133,"ke":0.0252,"gt":-0.0024,"kt":0.006}]}},{"track":"Data Structures & Algorithms","ke":0.0186,"gl":0.0449,"n":2,"actions":{}},{"track":"AI Workflow Automation","ke":0.0044,"gl":0.0128,"n":3,"actions":{}}]}</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById("data").textContent);
+  const pct = v => (v * 100).toFixed(1) + "%";
+  const MAX = 0.70; // headroom above the largest value (Data Analytics, 66.1% KE)
+
+  const WHY = {
+    add:    "Large and growing global gap. A strategic bet, not a scheduled arrival.",
+    expand: "Rising in both markets — the safest place to invest teaching time.",
+    hold:   "Core demand, already present locally. Keep as is.",
+    watch:  "Big globally, flat, still absent locally. Don't teach on global signal alone.",
+    retire: "Falling in both markets. Candidate for removal."
+  };
+
+  /* ---- programme chart ---- */
+  document.getElementById("chart").innerHTML = D.tracks.map(t => {
+    const gap = t.gl - t.ke;
+    const cls = gap >= 0 ? "gap-pos" : "gap-neg";
+    const sign = gap >= 0 ? "+" : "−";
+    return `<div class="row">
+      <div class="row-name">${t.track}</div>
+      <div class="bars">
+        <div class="bar-track">
+          <div class="bar ke" style="width:${(t.ke / MAX * 100).toFixed(2)}%"></div>
+          <span class="bar-val num">${pct(t.ke)}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar gl" style="width:${(t.gl / MAX * 100).toFixed(2)}%"></div>
+          <span class="bar-val num">${pct(t.gl)}</span>
+        </div>
+      </div>
+      <div class="gapcell num ${cls}">${sign}${Math.abs(gap * 100).toFixed(1)} pts</div>
+    </div>`;
+  }).join("");
+
+  /* ---- per-programme detail ---- */
+  const trend = v => {
+    if (v === null || v === undefined) return '<span class="flat">n/a</span>';
+    const c = v > 0.002 ? "up" : v < -0.002 ? "down" : "flat";
+    const s = v > 0 ? "+" : v < 0 ? "−" : "";
+    return `<span class="${c}">${s}${Math.abs(v * 100).toFixed(1)}</span>`;
+  };
+
+  const ORDER = ["add", "expand", "hold", "watch", "retire"];
+
+  document.getElementById("tracks").innerHTML = D.tracks.map((t, i) => {
+    const groups = ORDER.filter(a => (t.actions[a] || []).length);
+    const body = groups.length ? groups.map(a => {
+      const rows = t.actions[a].map(s => `<tr>
+          <td>${s.skill}</td>
+          <td class="num v-gl">${pct(s.gl)}</td>
+          <td class="num v-ke">${pct(s.ke)}</td>
+          <td class="num">${trend(s.gt)}</td>
+          <td class="num">${trend(s.kt)}</td>
+        </tr>`).join("");
+      return `<div>
+        <div class="action-head">
+          <span class="tag ${a}">${a}</span>
+          <span class="action-why">${WHY[a]}</span>
+        </div>
+        <div class="tbl-scroll"><table>
+          <thead><tr><th>Skill</th><th>Global</th><th>Kenya</th>
+            <th>Global 24→25</th><th>Kenya 24→25</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>`;
+    }).join("") : `<p class="empty">
+        No skill in this programme clears the thresholds for a recommendation.
+        Every tracked skill here is small in both markets — that is a finding
+        about concentration, not a data gap.
+      </p>`;
+
+    return `<details class="track"${i < 2 ? " open" : ""}>
+      <summary>
+        <span class="track-title">${t.track}</span>
+        <span class="mini">
+          <span class="ke-t">Kenya <b>${pct(t.ke)}</b></span> ·
+          <span class="gl-t">Global <b>${pct(t.gl)}</b></span> ·
+          <b>${t.n}</b> skills
+        </span>
+        <span class="chev">▸</span>
+      </summary>
+      <div class="track-body">
+        <div class="actions">${body}</div>
+      </div>
+    </details>`;
+  }).join("");
+})();
+</script>

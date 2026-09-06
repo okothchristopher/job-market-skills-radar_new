@@ -361,6 +361,34 @@ def aggregate(
 
 
 @app.command()
+def report(
+    out: str = typer.Option(None, help="Output directory (default: reports/)"),
+) -> None:
+    """Generate the curriculum briefs — add / expand / hold / watch / retire."""
+    _setup_logging()
+    config = Config.load()
+    r = pipeline.build_reports(config, out_dir=out)
+
+    table = Table(title="Programmes by Kenyan market size")
+    for column in ("programme", "Kenya", "global", "gap", "skills"):
+        table.add_column(column, justify="left" if column == "programme" else "right")
+    for b in r["briefs"]:
+        table.add_row(
+            b.track,
+            f"{b.kenya_coverage:.1%}",
+            f"{b.global_coverage:.1%}",
+            f"{b.coverage_gap:+.1%}",
+            str(b.n_skills),
+        )
+    console.print(table)
+    console.print(
+        "\n[dim]Coverage = share of technical postings asking for at least one skill "
+        "the programme teaches. Deliberately not the mean of its skills' shares.[/dim]"
+    )
+    console.print(f"\nwrote [bold]{r['markdown_path']}[/bold]")
+
+
+@app.command()
 def watchlist(
     limit: int = typer.Option(20, help="How many skills to show"),
     track: str = typer.Option(None, help="Filter to one Zindua programme"),

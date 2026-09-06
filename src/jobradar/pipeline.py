@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Iterable
 from datetime import UTC, datetime
+from pathlib import Path
 
 import yaml
 
@@ -276,3 +277,47 @@ def aggregate(config: Config, out_dir: str | None = None) -> tuple[dict, dict]:
     }
     written = fr.export(frames, out_dir or config.path("processed"))
     return written, diagnostics
+
+
+def build_reports(config: Config, out_dir: str | None = None) -> dict:
+    """Generate the curriculum briefs from the processed frames."""
+    from .aggregate import diffusion as dif
+    from .aggregate import frames as fr
+    from .report import track_brief as tb
+
+    db = config.path("raw_db")
+    jobs = fr.load_jobs(db)
+    job_skills = fr.load_job_skills(db, jobs=jobs)
+
+    skill_year = fr.build_skill_year(config, jobs, job_skills)
+    skill_month = fr.build_skill_month(config, jobs, job_skills)
+    skill_current = fr.build_skill_current(config, jobs, job_skills)
+
+    settings = dif.DiffusionSettings.from_config(config)
+    kenya_months = int(jobs.loc[jobs["source_group"] == "KE", "month"].nunique())
+    skill_diffusion, diagnostics = dif.build_diffusion(
+        skill_current,
+        skill_month,
+        settings,
+        kenya_months_observed=kenya_months,
+        skill_year=skill_year,
+    )
+    diagnostics["total_postings"] = len(jobs)
+    backtest = dif.backtest_thesis(skill_year)
+
+    coverage = tb.track_coverage(job_skills, jobs)
+    briefs = tb.build_briefs(skill_diffusion, coverage)
+
+    out = Path(out_dir or config.path("reports"))
+    out.mkdir(parents=True, exist_ok=True)
+    markdown = tb.to_markdown(briefs, backtest, diagnostics)
+    (out / "curriculum_briefs.md").write_text(markdown, encoding="utf-8")
+    coverage.to_csv(out / "track_coverage.csv", index=False)
+
+    return {
+        "briefs": briefs,
+        "backtest": backtest,
+        "diagnostics": diagnostics,
+        "coverage": coverage,
+        "markdown_path": str(out / "curriculum_briefs.md"),
+    }

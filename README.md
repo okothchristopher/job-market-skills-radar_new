@@ -106,6 +106,14 @@ Two skills currently classify as **teach-ahead** — large and rising globally, 
 
 Both sets are marked `provisional`: without Kenyan history, `teach_ahead` and `global_only` cannot be fully separated. See the caveat in [PLAN.md](PLAN.md).
 
+## The finding that mattered
+
+The project began from a stated premise: skills that rise globally trickle down to Kenya after a lag, so teaching ahead of the local market buys a head start. **The data does not support it.**
+
+Of the skills that rose globally in 2024→2025, 82.6% also rose in Kenya — but 74.2% of *all* skills rose in Kenya over the same window, so the lift is only **+8.5 points**. Same-year rank correlation is **+0.25**; applying a one-year lag gives **−0.20**, making the forecast worse than chance.
+
+What is real is the **level** gap. AI Engineering skills appear in 39.3% of global technical postings and 3.7% of Kenyan ones, and that gap is not closing year on year. Kenya reads as a *different* market rather than a delayed one — which makes the programme mix a strategic choice, not a timing one.
+
 ## Build status
 
 | Phase | State |
@@ -116,7 +124,7 @@ Both sets are marked `provisional`: without Kenyan history, `teach_ahead` and `g
 | 4. Extraction + taxonomy — 147 skills, all mapped to a Zindua track | ✅ done |
 | 5. Historical backfill (Wayback) — the only source of Kenyan history | ✅ done |
 | 6. Diffusion engine — calibrated gap, status classification, watchlist | ✅ done |
-| 7. Watchlist + track briefs | pending |
+| 7. Watchlist + track briefs | ✅ done |
 
 ## Crawling conduct
 
