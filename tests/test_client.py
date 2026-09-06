@@ -170,3 +170,64 @@ def test_rate_limiting_is_applied_per_domain():
         client.get(f"https://example.com/{i}")
     assert client.stats.seconds_waiting > 0
     assert client.stats.by_domain["example.com"] == 3
+
+
+# ------------------------------------------------------- robots crawl-delay
+
+
+class _RobotsSession:
+    """Serves a robots.txt with a Crawl-delay, then normal pages."""
+
+    def __init__(self, robots_body):
+        self.robots_body = robots_body
+        self.calls = []
+
+    def get(self, url, headers=None, timeout=None):
+        self.calls.append(url)
+        if url.endswith("robots.txt"):
+            return FakeHTTPResponse(200, self.robots_body.encode())
+        return FakeHTTPResponse(200, b"page")
+
+
+def _client_with_robots(robots_body, configured_rate):
+    session = _RobotsSession(robots_body)
+    return PoliteClient(
+        limiter=RateLimiter(
+            default_policy=RateLimitPolicy(requests_per_second=configured_rate, jitter=0.0),
+            sleep=lambda s: None,  # assert the policy, do not actually wait it out
+        ),
+        robots=RobotsGate("TestBot/1.0", session=session),
+        session=session,
+        respect_robots=True,
+        sleep=lambda s: None,
+    )
+
+
+def test_declared_crawl_delay_slows_us_down():
+    """JobWebKenya declares Crawl-delay: 60, which is 24x slower than our
+    default. Reading robots.txt but ignoring the one directive asking us to slow
+    down would make the hard-gate claim hollow."""
+    client = _client_with_robots("User-agent: *\nCrawl-delay: 60\nDisallow: /admin\n", 0.5)
+    client.get("https://slow.example/page")
+    assert client.limiter.policy_for("slow.example").requests_per_second == pytest.approx(1 / 60)
+
+
+def test_permissive_crawl_delay_does_not_speed_us_up():
+    """The stricter of the two always wins; a host declaring a short delay does
+    not license us to go faster than configured."""
+    client = _client_with_robots("User-agent: *\nCrawl-delay: 0.1\n", 0.5)
+    client.get("https://fast.example/page")
+    assert client.limiter.policy_for("fast.example").requests_per_second == pytest.approx(0.5)
+
+
+def test_absent_crawl_delay_leaves_policy_alone():
+    client = _client_with_robots("User-agent: *\nDisallow: /admin\n", 0.4)
+    client.get("https://plain.example/page")
+    assert client.limiter.policy_for("plain.example").requests_per_second == pytest.approx(0.4)
+
+
+def test_crawl_delay_is_applied_once_per_domain():
+    client = _client_with_robots("User-agent: *\nCrawl-delay: 5\n", 1.0)
+    for i in range(4):
+        client.get(f"https://once.example/{i}")
+    assert client.limiter.policy_for("once.example").requests_per_second == pytest.approx(0.2)

@@ -120,6 +120,9 @@ class PoliteClient:
         self.timeout = timeout
         self.max_retries = max_retries
         self.stats = FetchStats()
+        # Domains whose robots Crawl-delay we have already applied; the
+        # lookup is cached but the policy swap only needs to happen once.
+        self._crawl_delay_applied: set[str] = set()
         self._sleep = sleep
         self._session = session
 
@@ -133,6 +136,48 @@ class PoliteClient:
     @staticmethod
     def _domain(url: str) -> str:
         return urlsplit(url).netloc
+
+    def _apply_crawl_delay(self, domain: str, url: str) -> None:
+        """Honour a host-declared Crawl-delay when it is stricter than our config.
+
+        A site asking for more space than we planned to give it gets it. This is
+        not cosmetic: JobWebKenya declares ``Crawl-delay: 60``, which is 24x
+        slower than our default and completely changes how that source can be
+        crawled. Reading robots.txt but ignoring the one directive that asks us
+        to slow down would make the whole "hard gate" claim hollow.
+
+        The stricter of the two always wins, and we never speed up to match a
+        permissive declaration.
+        """
+        if domain in self._crawl_delay_applied or not self.respect_robots:
+            return
+        self._crawl_delay_applied.add(domain)
+
+        try:
+            declared = self.robots.crawl_delay(url)
+        except Exception:
+            return
+        if not declared or declared <= 0:
+            return
+
+        declared_rate = 1.0 / declared
+        current = self.limiter.policy_for(domain)
+        if declared_rate < current.requests_per_second:
+            log.info(
+                "%s declares Crawl-delay: %.0fs; slowing from %.2f to %.4f req/s",
+                domain,
+                declared,
+                current.requests_per_second,
+                declared_rate,
+            )
+            self.limiter.set_policy(
+                domain,
+                RateLimitPolicy(
+                    requests_per_second=declared_rate,
+                    burst=1,
+                    jitter=current.jitter,
+                ),
+            )
 
     def _backoff_seconds(self, attempt: int, retry_after: str | None) -> float:
         """Honour Retry-After when the server sends it, else exponential with jitter."""
@@ -172,6 +217,7 @@ class PoliteClient:
                 raise
 
         domain = self._domain(url)
+        self._apply_crawl_delay(domain, url)
         request_headers = {
             "User-Agent": self.user_agent,
             "Accept-Language": "en-KE,en-GB;q=0.9,en;q=0.8",

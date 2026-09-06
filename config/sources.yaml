@@ -40,10 +40,13 @@ sources:
     domain: www.myjobmag.co.ke
     rate_per_second: 0.4
     # robots.txt blocks all query strings; path pagination (/2, /3) is allowed.
+    max_pages: 10               # path pagination; query strings are disallowed
     categories:
       - /jobs-by-field/information-technology
       - /jobs-by-field/data-science
       - /jobs-by-field/engineering-technical
+      - /jobs-by-field/finance-accounting
+      - /jobs-by-field/sales-marketing
     sitemaps:
       - https://www.myjobmag.co.ke/sitemap-main-jobs.xml
       - https://www.myjobmag.co.ke/sitemap-sub-jobs.xml
@@ -54,13 +57,27 @@ sources:
     domain: www.fuzu.com
     rate_per_second: 0.5
     countries: [kenya, uganda, nigeria]   # D2: collect region, analyse Kenya first
-    sitemap_template: https://www.fuzu.com/{country}/sitemap-job-listings.xml.gz
+    max_pages: 5
+    # Fuzu's gzipped sitemaps sit behind a Cloudflare challenge, so category
+    # pages are the way in. Job URLs are /{country}/jobs/{slug} (plural) while
+    # categories are /{country}/job/{slug} (singular).
 
   jobwebkenya:
+    # Declares `Crawl-delay: 60` in robots.txt -- one request per minute, 24x
+    # slower than our default. The client honours that automatically, so a full
+    # crawl here takes hours rather than minutes.
+    #
+    # Its coverage overlaps heavily with BrighterMonday and MyJobMag, so it runs
+    # with a small per-run budget and accumulates across monthly runs instead of
+    # being drained in one sitting. Set enabled: false if the wall-clock is not
+    # worth the marginal postings.
     enabled: true
     group: KE
     domain: jobwebkenya.com
-    rate_per_second: 0.4
+    rate_per_second: 0.4        # superseded by the declared 60s crawl-delay
+    max_pages: 2
+    categories:
+      - /jobs/
 
   # --------------------------------------------------------------- Global
   # First-party employer APIs are the backbone: one request returns hundreds of

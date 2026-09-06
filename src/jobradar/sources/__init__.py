@@ -9,6 +9,12 @@ from __future__ import annotations
 from .base import SourceAdapter, registry
 
 # Imported for their registration side effect.
-from . import ashby, greenhouse, hn_hiring, remote_boards  # noqa: F401  isort:skip
+from . import (  # noqa: F401  isort:skip
+    ashby,
+    greenhouse,
+    hn_hiring,
+    kenya,
+    remote_boards,
+)
 
 __all__ = ["SourceAdapter", "registry"]
