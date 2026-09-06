@@ -196,3 +196,68 @@ def test_counts_by_source_group_year_excludes_ats(store):
 def test_counts_by_source_group_year_with_no_sources(store):
     store.upsert_job(make_job())
     assert store.counts_by_source_group_year([]) == []
+
+
+# --------------------------------------------- regression: iteration deadlock
+
+
+def test_can_write_while_iterating(store):
+    """iter_jobs must not hold the store lock across a yield.
+
+    Skill extraction reads every posting and writes its matches back as it
+    goes. When the lock was held across the yield, the write blocked on a
+    non-reentrant lock and the process hung silently -- no error, no progress,
+    just a stalled run that looked like slow work.
+    """
+    from types import SimpleNamespace
+
+    store.upsert_jobs([make_job(native_id=f"j{i}") for i in range(12)])
+
+    written = 0
+    for row in store.iter_jobs(batch_size=5):
+        match = SimpleNamespace(
+            skill="Python",
+            canonical_name="python",
+            category="language",
+            zindua_track="Software Engineering Core",
+            n_mentions=1,
+            matched_in="description",
+        )
+        written += store.replace_job_skills(row["job_id"], [match])
+    store.commit()
+
+    assert written == 12
+    assert store.skill_match_count() == 12
+    assert store.jobs_with_skills_count() == 12
+
+
+def test_iter_jobs_visits_every_row_once(store):
+    store.upsert_jobs([make_job(native_id=f"k{i}") for i in range(23)])
+    seen = [row["job_id"] for row in store.iter_jobs(batch_size=5)]
+    assert len(seen) == 23
+    assert len(set(seen)) == 23
+
+
+def test_replace_job_skills_overwrites_previous_extraction(store):
+    """Re-running extraction after a taxonomy fix must replace, not accumulate."""
+    from types import SimpleNamespace
+
+    def m(skill):
+        return SimpleNamespace(
+            skill=skill,
+            canonical_name=skill.lower(),
+            category="c",
+            zindua_track="t",
+            n_mentions=1,
+            matched_in="description",
+        )
+
+    store.upsert_job(make_job())
+    job_id = next(store.iter_jobs())["job_id"]
+    store.replace_job_skills(job_id, [m("Excel"), m("Go")])
+    store.commit()
+    assert store.skill_match_count() == 2
+
+    store.replace_job_skills(job_id, [m("Excel")])  # corrected taxonomy
+    store.commit()
+    assert store.skill_match_count() == 1

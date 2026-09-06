@@ -76,6 +76,19 @@ CREATE TABLE IF NOT EXISTS failed_fetches (
     failed_at   TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS job_skills (
+    job_id         TEXT NOT NULL,
+    skill          TEXT NOT NULL,
+    canonical_name TEXT NOT NULL,
+    category       TEXT,
+    zindua_track   TEXT,
+    n_mentions     INTEGER NOT NULL,
+    matched_in     TEXT NOT NULL,
+    PRIMARY KEY (job_id, skill)
+);
+CREATE INDEX IF NOT EXISTS idx_job_skills_skill ON job_skills (skill);
+CREATE INDEX IF NOT EXISTS idx_job_skills_track ON job_skills (zindua_track);
+
 CREATE TABLE IF NOT EXISTS run_log (
     run_id     TEXT NOT NULL,
     stage      TEXT NOT NULL,
@@ -105,6 +118,11 @@ class JobStore:
         self._conn = sqlite3.connect(self.path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._conn.execute("PRAGMA journal_mode=WAL")
+        # WAL allows concurrent readers, but still only one writer. Without a
+        # busy timeout a second writer fails instantly with "database is
+        # locked" -- which is how a crawl died mid-run when extraction was
+        # working on the same file. Wait for the lock instead of aborting.
+        self._conn.execute("PRAGMA busy_timeout=30000")
         self._conn.executescript(_SCHEMA)
         self._conn.commit()
 
@@ -212,18 +230,34 @@ class JobStore:
         return [(row[0], row[1], row[2]) for row in rows]
 
     def iter_jobs(self, source: str | None = None, batch_size: int = 500) -> Iterator[sqlite3.Row]:
-        sql = "SELECT * FROM jobs"
-        params: tuple = ()
+        """Iterate stored postings in stable order.
+
+        The lock is **released between batches**, never held across a ``yield``.
+        Holding it while yielding deadlocks any caller that writes back as it
+        reads — which is exactly what skill extraction does, and it hangs
+        silently rather than erroring because ``threading.Lock`` is not
+        reentrant.
+
+        Paging is by ``job_id`` rather than OFFSET so the walk stays correct
+        even if rows are written while it runs.
+        """
+        base = "SELECT * FROM jobs"
+        where = []
+        params: list = []
         if source:
-            sql += " WHERE source = ?"
-            params = (source,)
-        with self._lock:
-            cursor = self._conn.execute(sql, params)
-            while True:
-                rows = cursor.fetchmany(batch_size)
-                if not rows:
-                    break
-                yield from rows
+            where.append("source = ?")
+            params.append(source)
+
+        last_id = ""
+        while True:
+            clauses = [*where, "job_id > ?"]
+            sql = f"{base} WHERE {' AND '.join(clauses)} ORDER BY job_id LIMIT ?"
+            with self._lock:
+                rows = self._conn.execute(sql, (*params, last_id, batch_size)).fetchall()
+            if not rows:
+                break
+            yield from rows
+            last_id = rows[-1]["job_id"]
 
     def has_job(self, source: str, native_id: str) -> bool:
         import hashlib
@@ -278,6 +312,70 @@ class JobStore:
         with self._lock:
             rows = self._conn.execute(sql, params).fetchall()
         return {row[0]: row[1] for row in rows}
+
+    # -------------------------------------------------------------- skills
+
+    def replace_job_skills(self, job_id: str, matches: Iterable) -> int:
+        """Write one job's skill matches, replacing any previous extraction.
+
+        Replacing rather than appending is what makes re-running extraction
+        after a taxonomy fix safe: the corrected result overwrites the old one
+        instead of accumulating both.
+        """
+        rows = [
+            (
+                job_id,
+                m.skill,
+                m.canonical_name,
+                m.category,
+                m.zindua_track,
+                m.n_mentions,
+                m.matched_in,
+            )
+            for m in matches
+        ]
+        with self._lock:
+            self._conn.execute("DELETE FROM job_skills WHERE job_id = ?", (job_id,))
+            if rows:
+                self._conn.executemany(
+                    "INSERT OR REPLACE INTO job_skills "
+                    "(job_id, skill, canonical_name, category, zindua_track, "
+                    "n_mentions, matched_in) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    rows,
+                )
+        return len(rows)
+
+    def commit(self) -> None:
+        with self._lock:
+            self._conn.commit()
+
+    def clear_job_skills(self) -> int:
+        with self._lock:
+            cursor = self._conn.execute("DELETE FROM job_skills")
+            self._conn.commit()
+            return cursor.rowcount
+
+    def skill_match_count(self) -> int:
+        with self._lock:
+            return self._conn.execute("SELECT COUNT(*) FROM job_skills").fetchone()[0]
+
+    def jobs_with_skills_count(self) -> int:
+        with self._lock:
+            return self._conn.execute("SELECT COUNT(DISTINCT job_id) FROM job_skills").fetchone()[0]
+
+    def top_skills(self, source_group: str | None = None, limit: int = 20):
+        """(skill, track, n_jobs) ordered by how many postings mention them."""
+        sql = (
+            "SELECT s.skill, s.zindua_track, COUNT(DISTINCT s.job_id) n "
+            "FROM job_skills s JOIN jobs j ON j.job_id = s.job_id "
+        )
+        params: tuple = ()
+        if source_group:
+            sql += "WHERE j.source_group = ? "
+            params = (source_group,)
+        sql += "GROUP BY s.skill, s.zindua_track ORDER BY n DESC LIMIT ?"
+        with self._lock:
+            return self._conn.execute(sql, (*params, limit)).fetchall()
 
     # ------------------------------------------------------------ failures
 

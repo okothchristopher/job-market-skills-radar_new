@@ -249,5 +249,40 @@ def fetch(
     store.close()
 
 
+@app.command()
+def extract(
+    taxonomy: str = typer.Option(None, help="Override the taxonomy CSV path"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Run the skill taxonomy over every stored posting.
+
+    Costs no network traffic: descriptions are already in the store, so a
+    taxonomy correction can be re-applied for free.
+    """
+    _setup_logging(verbose)
+    config = Config.load()
+    store = JobStore(config.path("raw_db"))
+
+    stats = pipeline.extract_skills(config, store, taxonomy_path=taxonomy)
+
+    console.print(
+        f"\n[bold]{stats['skill_matches']:,}[/bold] skill matches across "
+        f"[bold]{stats['jobs_with_skills']:,}[/bold] of {stats['jobs_processed']:,} postings "
+        f"({stats['coverage']:.1%} coverage), using {stats['skills_in_taxonomy']} skills\n"
+    )
+
+    for group in ("GLOBAL", "KE"):
+        rows = store.top_skills(source_group=group, limit=12)
+        if not rows:
+            continue
+        table = Table(title=f"Most-requested skills — {group}")
+        for column in ("skill", "Zindua track", "postings"):
+            table.add_column(column, justify="right" if column == "postings" else "left")
+        for skill, track, n in rows:
+            table.add_row(skill, track or "-", f"{n:,}")
+        console.print(table)
+    store.close()
+
+
 if __name__ == "__main__":
     app()

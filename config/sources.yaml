@@ -71,7 +71,11 @@ sources:
     # with a small per-run budget and accumulates across monthly runs instead of
     # being drained in one sitting. Set enabled: false if the wall-clock is not
     # worth the marginal postings.
-    enabled: true
+    #
+    # DISABLED by decision: hours of wall-clock for postings that BrighterMonday,
+    # MyJobMag and Fuzu already cover. The adapter and its tests stay in place, so
+    # flipping this back to true is the only change needed to re-enable it.
+    enabled: false
     group: KE
     domain: jobwebkenya.com
     rate_per_second: 0.4        # superseded by the declared 60s crawl-delay

@@ -84,6 +84,25 @@ A 2024 posting still open in 2026 is an evergreen, hard-to-fill or perpetually-r
 
 **Attribution obligations.** Jobicy requires a credit line with a direct link in any published report. This is tracked in `config/sources.yaml` and surfaced by each adapter's `attribution()`.
 
+### What Phase 3 found on the Kenyan side
+
+Three defects, and the striking thing is that **all three caused total silent data loss** — no exception, no empty-result signal, just a table that never gained rows. This is the failure mode this project is most exposed to, and it is why every parser now has a regression test pinned to real captured markup.
+
+**1. MyJobMag's JSON-LD is not valid JSON.** It embeds raw CR/LF control characters inside string values, which the spec forbids and `json.loads` rejects outright. Strict parsing returned **zero blocks for every posting on the site** — the entire source lost, silently. Parsing is now lenient in three stages (strict → `strict=False` → strip illegal control characters).
+
+**2. `hiringOrganization` is an `@id` reference, not an inline object.** Flagged in Phase 1, confirmed here: a naive read returns `None`. Because `company` feeds the cross-board dedupe key, losing it stops the same job appearing on BrighterMonday and MyJobMag from collapsing — inflating counts rather than obviously breaking.
+
+**3. `Crawl-delay` was read but never applied.** The Phase 1 gate exposed `crawl_delay()` and nothing called it. JobWebKenya declares **`Crawl-delay: 60`** — 24× slower than our default — so we were reading robots.txt while ignoring the one directive that asks us to slow down, which made the "hard gate" claim hollow. The client now takes the stricter of configured rate and declared delay.
+
+Two smaller corrections:
+
+- **Speculative pagination was 404-ing against ourselves.** Fanning out to a fixed page count requested pages that do not exist — BrighterMonday's `software-data` category holds three pages, not seven — filling the failure table with our own mistakes rather than real problems. Pagination now advances one page at a time and stops when a page yields no postings.
+- **Remote roles must not be read as on-site.** schema.org signals remote with `jobLocationType: TELECOMMUTE` and frequently omits `jobLocation` entirely. Treating an absent location as on-site would have biased the remote share downward across the whole Kenyan corpus. `applicantLocationRequirements` supplies the geography instead.
+
+**Unexpected bonus:** BrighterMonday publishes `baseSalary` as a structured MonetaryAmount in KES on some postings. Kenyan salary data is scarce enough that this is worth having, and it is now captured.
+
+**Fuzu access note.** Its gzipped sitemaps sit behind a Cloudflare challenge (HTTP 403), but ordinary category pages serve fine to our identified user-agent. Category pages carry an `ItemList` JSON-LD naming each posting, which is more robust than anchor scraping. Note the URL trap: categories are `/{country}/job/{slug}` (singular) while postings are `/{country}/jobs/{slug}` (plural) — conflating them yields a crawl that finds no postings at all.
+
 ---
 
 ## 3. The key architectural change from `on-demand-tech-skills`

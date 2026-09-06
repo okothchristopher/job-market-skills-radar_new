@@ -25,7 +25,7 @@ FETCH ──▶ SOURCE ADAPTERS ──▶ STORE ──▶ EXTRACT ──▶ AGGR
 
 ## Sources
 
-**Kenya** — BrighterMonday, MyJobMag, Fuzu, JobWebKenya. All serve server-side HTML with JSON-LD `JobPosting` blocks, so no browser automation is needed. Crawled via category paths and sitemaps only, never keyword-search URLs (which BrighterMonday and MyJobMag both disallow in robots.txt).
+**Kenya** — BrighterMonday, MyJobMag and Fuzu. All serve server-side HTML with JSON-LD `JobPosting` blocks, so no browser automation is needed. Crawled via category paths only, never keyword-search URLs (which BrighterMonday and MyJobMag both disallow in robots.txt). A JobWebKenya adapter exists but ships disabled: it declares `Crawl-delay: 60`, which costs hours of wall-clock for postings the other three already cover.
 
 **Global** — Greenhouse and Ashby public board APIs are the backbone: first-party employer data, hundreds of fully-described postings per request, from a bootstrapped list of confirmed company boards. Hacker News "Who is hiring?" via Algolia provides the historical spine — 33 unbroken monthly threads from January 2024. Arbeitnow, Jobicy and Himalayas add remote-market breadth.
 
@@ -95,8 +95,8 @@ diffusion gap for every skill at once.
 |---|---|
 | 1. Fetch core — robots gate, rate limiter, cache, store, CLI | ✅ done |
 | 2. Global adapters — Greenhouse, Ashby, HN, remote APIs | ✅ done |
-| 3. Kenyan adapters — Fuzu, BrighterMonday, MyJobMag, JobWebKenya | pending |
-| 4. Extraction + taxonomy | pending |
+| 3. Kenyan adapters — Fuzu, BrighterMonday, MyJobMag | ✅ done |
+| 4. Extraction + taxonomy — 147 skills, all mapped to a Zindua track | ✅ done |
 | 5. Historical backfill (Wayback) | pending |
 | 6. Diffusion engine | pending |
 | 7. Watchlist + track briefs | pending |

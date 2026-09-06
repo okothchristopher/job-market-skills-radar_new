@@ -66,6 +66,11 @@ class ResponseCache:
         # WAL lets readers proceed while a write is in flight, which matters once
         # domains are fetched in parallel.
         self._conn.execute("PRAGMA journal_mode=WAL")
+        # WAL allows concurrent readers, but still only one writer. Without a
+        # busy timeout a second writer fails instantly with "database is
+        # locked" -- which is how a crawl died mid-run when extraction was
+        # working on the same file. Wait for the lock instead of aborting.
+        self._conn.execute("PRAGMA busy_timeout=30000")
         self._conn.executescript(_SCHEMA)
         self._conn.commit()
 

@@ -14,8 +14,10 @@ from datetime import UTC, datetime
 import yaml
 
 from .config import REPO_ROOT, Config
+from .extract.skills import SkillExtractor
 from .fetch.client import FetchError, PoliteClient, build_client
 from .fetch.robots import RobotsDisallowed
+from .parse.text import html_to_text
 from .sources import registry
 from .sources.ashby import AshbyAdapter
 from .sources.greenhouse import GreenhouseAdapter
@@ -191,3 +193,41 @@ def fetch(
         log.info("%s: %d URLs -> %d jobs (%d failed)", name, processed, stored, failed)
 
     return results
+
+
+def extract_skills(
+    config: Config,
+    store: JobStore,
+    taxonomy_path: str | None = None,
+    batch_size: int = 500,
+) -> dict:
+    """Run the taxonomy over every stored posting.
+
+    This costs no network traffic at all -- descriptions are already in the
+    store, which is the whole reason for collecting documents rather than search
+    counts. Re-running after a taxonomy correction is free, so the taxonomy can
+    keep improving without ever re-crawling.
+    """
+    extractor = SkillExtractor.from_csv(taxonomy_path or config.path("taxonomy"))
+
+    jobs = matches = with_skills = 0
+    for row in store.iter_jobs(batch_size=batch_size):
+        jobs += 1
+        text = html_to_text(row["description_html"])
+        found = extractor.extract(row["title"], text)
+        n = store.replace_job_skills(row["job_id"], found)
+        matches += n
+        if n:
+            with_skills += 1
+        if jobs % batch_size == 0:
+            store.commit()
+            log.info("extracted %d/%s jobs", jobs, "?")
+    store.commit()
+
+    return {
+        "skills_in_taxonomy": len(extractor.skills),
+        "jobs_processed": jobs,
+        "jobs_with_skills": with_skills,
+        "skill_matches": matches,
+        "coverage": round(with_skills / jobs, 4) if jobs else 0.0,
+    }
