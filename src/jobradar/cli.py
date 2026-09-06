@@ -119,10 +119,52 @@ def status() -> None:
             f"\n[dim]Cells below {threshold} postings are excluded from trend claims.[/dim]"
         )
 
+    _print_trend_usability(config, store)
+
     failures = store.failure_count()
     if failures:
         console.print(f"\n[yellow]{failures:,} failed fetches recorded[/yellow]")
     store.close()
+
+
+def _print_trend_usability(config: Config, store: JobStore) -> None:
+    """Show how much of the corpus may actually carry a trend claim.
+
+    Two filters apply, and both remove data that looks perfectly good:
+
+    * ATS boards (Greenhouse, Ashby) carry real publish dates but their older
+      postings are survivorship-biased — a 2024 role still open today is
+      evergreen or hard to fill, not a sample of 2024 demand.
+    * Any (group, year) cell below ``min_cell_size`` is too thin to support a
+      claim regardless of source.
+
+    Printing this next to the raw totals keeps the gap between "collected" and
+    "usable" visible, which is where over-claiming usually starts.
+    """
+    analysis = config.settings.get("analysis", {})
+    unbiased = set(analysis.get("unbiased_history_sources", []))
+    if not unbiased:
+        return
+
+    rows = store.counts_by_source_group_year(history_sources=unbiased)
+    if not rows:
+        return
+
+    table = Table(title="Trend-usable history (survivorship filter applied)")
+    for column in ("group", "year", "unbiased postings", "usable?"):
+        table.add_column(column)
+
+    threshold = config.min_cell_size
+    for group, year, count in rows:
+        usable = (
+            "[green]yes[/green]" if count >= threshold else f"[yellow]thin (<{threshold})[/yellow]"
+        )
+        table.add_row(group, str(year), f"{count:,}", usable)
+    console.print(table)
+    console.print(
+        f"[dim]Only {', '.join(sorted(unbiased))} carry year-over-year trends. "
+        "ATS boards supply current-state depth; their older tail is excluded.[/dim]"
+    )
 
 
 @app.command()

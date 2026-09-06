@@ -189,6 +189,28 @@ class JobStore:
             ).fetchall()
         return [(row[0], row[1], row[2]) for row in rows]
 
+    def counts_by_source_group_year(
+        self, history_sources: Iterable[str]
+    ) -> list[tuple[str, int, int]]:
+        """(source_group, year, n) counting only sources trusted for history.
+
+        ATS boards are excluded here even though they carry real publish dates:
+        their older postings are survivorship-biased, so counting them would
+        overstate how much genuine history the corpus holds.
+        """
+        sources = list(history_sources)
+        if not sources:
+            return []
+        placeholders = ", ".join("?" for _ in sources)
+        with self._lock:
+            rows = self._conn.execute(
+                f"SELECT source_group, year, COUNT(*) FROM jobs "
+                f"WHERE year IS NOT NULL AND source IN ({placeholders}) "
+                "GROUP BY 1, 2 ORDER BY 1, 2",
+                sources,
+            ).fetchall()
+        return [(row[0], row[1], row[2]) for row in rows]
+
     def iter_jobs(self, source: str | None = None, batch_size: int = 500) -> Iterator[sqlite3.Row]:
         sql = "SELECT * FROM jobs"
         params: tuple = ()

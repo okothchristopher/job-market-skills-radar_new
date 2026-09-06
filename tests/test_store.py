@@ -174,3 +174,25 @@ def test_store_survives_reopen(tmp_path):
     second = JobStore(path)
     assert second.job_count() == 1
     second.close()
+
+
+def test_counts_by_source_group_year_excludes_ats(store):
+    """ATS boards carry real publish dates but a survivorship-biased tail, so
+    they must not inflate the count of genuine history."""
+    store.upsert_jobs(
+        [
+            make_job(source="hn_hiring", native_id=f"h{i}", date_posted=datetime(2024, 5, 1))
+            for i in range(3)
+        ]
+        + [
+            make_job(source="greenhouse", native_id=f"g{i}", date_posted=datetime(2024, 5, 1))
+            for i in range(9)
+        ]
+    )
+    assert store.counts_by_group_year() == [("KE", 2024, 12)]
+    assert store.counts_by_source_group_year(["hn_hiring"]) == [("KE", 2024, 3)]
+
+
+def test_counts_by_source_group_year_with_no_sources(store):
+    store.upsert_job(make_job())
+    assert store.counts_by_source_group_year([]) == []
