@@ -1,0 +1,356 @@
+source_group,skill_a,skill_b,n_jobs,lift
+KE,Python,SQL,12,4.972
+KE,LLM,Prompt Engineering,10,11.188
+KE,Git,SQL,10,4.387
+KE,CSS,HTML,9,16.11
+KE,Agile,CI/CD,7,5.594
+KE,C++,Linux,7,11.188
+KE,Go,Linux,7,11.188
+KE,C,C++,7,25.571
+KE,Azure,SQL,7,4.746
+KE,Git,PostgreSQL,7,8.19
+KE,C,Linux,7,11.188
+KE,C++,Rust,6,25.571
+KE,C,Go,6,21.918
+KE,ETL,SQL,6,5.594
+KE,C++,Go,6,21.918
+KE,Git,Testing,6,6.318
+KE,HTML,JavaScript,6,9.764
+KE,Go,Rust,6,25.571
+KE,Linux,Rust,6,11.188
+KE,Git,TypeScript,6,10.529
+KE,C,Rust,6,25.571
+KE,MySQL,PostgreSQL,5,14.206
+KE,Python,Statistics,5,3.108
+KE,HTML,PHP,5,12.786
+KE,Data Warehousing,SQL,5,6.215
+KE,Git,Python,5,2.925
+KE,CI/CD,Python,5,3.552
+KE,AWS,Azure,5,11.623
+KE,SQL,SQL Server,5,7.458
+KE,Linux,PostgreSQL,5,6.215
+KE,PostgreSQL,SQL,5,4.144
+KE,Git,Linux,5,3.29
+KE,CSS,React,5,11.188
+KE,Git,React,5,6.581
+KE,Docker,Git,5,7.521
+KE,Azure,Git,5,4.786
+KE,Git,REST API,5,8.775
+KE,Git,JavaScript,5,4.786
+KE,CSS,PHP,5,12.786
+KE,CSS,JavaScript,5,8.136
+KE,CSS,Git,4,4.212
+KE,Machine Learning,Statistics,4,4.475
+KE,C#,SQL,4,5.967
+KE,HTML,SQL,4,2.983
+KE,Azure,Testing,4,6.509
+KE,Azure,JavaScript,4,5.917
+KE,PostgreSQL,REST API,4,13.259
+KE,MySQL,REST API,4,17.048
+KE,MySQL,SQL,4,4.262
+KE,Oracle,SQL,4,3.729
+KE,Linux,SQL,4,1.865
+KE,Incident Response,Penetration Testing,4,10.848
+KE,Incident Response,Network Security,4,6.509
+KE,Linux,MySQL,4,6.393
+KE,Network Security,SQL,4,2.983
+KE,ETL,SQL Server,4,17.9
+KE,SQL,Testing,4,2.983
+KE,Azure,Linux,4,4.068
+KE,CI/CD,JavaScript,4,4.649
+KE,JavaScript,TypeScript,4,10.848
+KE,Agile,Git,4,2.632
+KE,Agile,Java,4,6.393
+KE,Docker,Linux,4,6.393
+KE,CSS,Docker,4,10.229
+KE,PHP,SQL,4,4.262
+KE,Python,React,4,4.972
+KE,HTML,React,4,8.95
+KE,Git,HTML,4,4.212
+KE,React,SQL,4,3.729
+KE,Docker,React,4,12.786
+KE,CI/CD,Git,4,3.008
+KE,CI/CD,Linux,4,3.196
+KE,Data Visualization,Excel,4,2.512
+KE,Git,MySQL,4,6.017
+KE,ETL,Python,4,4.972
+KE,Git,PHP,4,6.017
+KE,CI/CD,Testing,4,5.114
+KE,React,TypeScript,4,14.917
+KE,Cryptography,Incident Response,4,9.299
+KE,AWS,Linux,4,6.393
+KE,AWS,CI/CD,4,7.306
+KE,Git,Node.js,4,10.529
+KE,CSS,WordPress,3,13.425
+KE,HTML,WordPress,3,13.425
+KE,Node.js,TypeScript,3,22.375
+KE,Git,System Design,3,5.265
+KE,Azure,TypeScript,3,8.136
+KE,ETL,Excel,3,1.178
+KE,Azure,Python,3,2.712
+KE,Agile,Microservices,3,8.391
+KE,JavaScript,REST API,3,8.136
+KE,MySQL,PHP,3,10.959
+KE,PHP,REST API,3,12.786
+KE,Databricks,ETL,3,22.375
+KE,Penetration Testing,Vulnerability Assessment,3,22.375
+KE,Incident Response,Vulnerability Assessment,3,12.205
+KE,Excel,Stakeholder Management,3,0.428
+KE,Python,SQL Server,3,5.967
+KE,Cryptography,Oracle,3,9.589
+KE,Git,SQL Server,3,6.318
+KE,ETL,PostgreSQL,3,7.458
+KE,ETL,Git,3,3.949
+KE,JavaScript,Node.js,3,12.205
+KE,ISO 27001,Penetration Testing,3,17.9
+KE,Docker,Microservices,3,19.179
+KE,Git,Microservices,3,7.897
+KE,CI/CD,GitHub,3,9.589
+KE,Azure,CI/CD,3,3.487
+KE,AWS,Microservices,3,19.179
+KE,AWS,JavaScript,3,6.974
+KE,Agile,SQL Server,3,6.712
+KE,Agile,ETL,3,4.195
+KE,Agile,SQL,3,1.398
+KE,Machine Learning,Python,3,2.983
+KE,C#,Git,3,6.318
+KE,Cryptography,MySQL,3,10.959
+KE,C#,Python,3,5.967
+KE,C#,SQL Server,3,21.48
+KE,Agile,Python,3,1.865
+KE,REST API,SQL,3,3.729
+KE,AWS,PostgreSQL,3,8.524
+KE,AWS,Agile,3,4.795
+KE,Agile,C#,3,6.712
+KE,C#,CI/CD,3,7.671
+KE,AWS,MySQL,3,10.959
+KE,Cryptography,PostgreSQL,3,8.524
+KE,Docker,TypeScript,3,12.786
+KE,Data Warehousing,Stakeholder Management,3,4.068
+KE,SQL,Stakeholder Management,3,1.017
+KE,Machine Learning,SQL,3,2.238
+KE,Node.js,React,3,16.781
+KE,CI/CD,Docker,3,5.48
+KE,CI/CD,CSS,3,3.836
+KE,CI/CD,PostgreSQL,3,4.262
+KE,Agile,Jira,3,6.712
+KE,PostgreSQL,Python,3,3.315
+KE,PostgreSQL,SQL Server,3,11.933
+KE,PHP,Python,3,4.262
+KE,PHP,React,3,9.589
+KE,CI/CD,TypeScript,3,6.393
+KE,CI/CD,React,3,4.795
+KE,Docker,PostgreSQL,3,8.524
+KE,API Integration,SQL,3,4.475
+KE,CSS,SQL,3,2.238
+KE,Docker,HTML,3,7.671
+KE,Docker,PHP,3,10.959
+KE,Docker,Python,3,4.262
+KE,Docker,SQL,3,3.196
+KE,API Integration,Docker,3,15.343
+KE,API Integration,Python,3,5.967
+KE,Linux,TypeScript,3,5.594
+KE,PostgreSQL,React,3,7.458
+KE,PostgreSQL,TypeScript,3,9.944
+KE,REST API,TypeScript,3,14.917
+KE,JavaScript,React,3,6.102
+KE,Databricks,Python,3,9.944
+KE,Databricks,SQL,3,7.458
+KE,CSS,REST API,3,8.95
+KE,CSS,PostgreSQL,2,3.978
+KE,Git,Laravel,2,10.529
+KE,HTML,MySQL,2,5.114
+KE,Data Structures,Python,2,6.63
+KE,Data Structures,SQL,2,4.972
+KE,JavaScript,Python,2,1.808
+KE,LLM,Python,2,1.243
+KE,API Integration,System Design,2,11.933
+KE,Azure,Incident Response,2,2.959
+KE,CI/CD,HTML,2,2.557
+KE,Linux,System Design,2,3.729
+KE,Databricks,GitHub,2,29.833
+KE,Databricks,SQL Server,2,23.867
+KE,ETL,GitHub,2,11.188
+KE,GitHub,Python,2,4.972
+KE,GitHub,SQL,2,3.729
+KE,GitHub,SQL Server,2,17.9
+KE,AWS,SQL,2,2.131
+KE,AWS,Vulnerability Assessment,2,12.786
+KE,Azure,Data Warehousing,2,5.424
+KE,Azure,ETL,2,4.068
+KE,Azure,Oracle,2,4.068
+KE,Azure,Vulnerability Assessment,2,8.136
+KE,Data Warehousing,ETL,2,7.458
+KE,Linux,Redis,2,11.188
+KE,Next.js,PostgreSQL,2,19.889
+KE,Next.js,React,2,22.375
+KE,PostgreSQL,Redis,2,19.889
+KE,REST API,React,2,7.458
+KE,REST API,Redis,2,29.833
+KE,Redis,TypeScript,2,29.833
+KE,API Integration,CSS,2,7.16
+KE,API Integration,HTML,2,7.16
+KE,API Integration,PHP,2,10.229
+KE,API Integration,React,2,8.95
+KE,CSS,Python,2,1.989
+KE,HTML,Python,2,1.989
+KE,CI/CD,Redis,2,12.786
+KE,CSS,Linux,2,2.238
+KE,CSS,TypeScript,2,5.967
+KE,Docker,REST API,2,8.524
+KE,Docker,Redis,2,25.571
+KE,Git,Next.js,2,10.529
+KE,Git,Redis,2,10.529
+KE,Linux,REST API,2,3.729
+KE,Linux,React,2,2.797
+KE,Excel,Power BI,2,1.256
+KE,Excel,Python,2,0.349
+KE,Power BI,Python,2,3.978
+KE,Claude,OpenAI API,2,59.667
+KE,Data Warehousing,Machine Learning,2,5.967
+KE,Data Warehousing,Network Security,2,5.967
+KE,Machine Learning,Network Security,2,3.58
+KE,Machine Learning,Stakeholder Management,2,1.627
+KE,Network Security,Stakeholder Management,2,1.627
+KE,Node.js,PostgreSQL,2,9.944
+KE,C#,PostgreSQL,2,7.956
+KE,CI/CD,Java,2,3.653
+KE,CI/CD,Kafka,2,12.786
+KE,CI/CD,MySQL,2,3.653
+KE,Java,Kubernetes,2,25.571
+KE,Java,Linux,2,3.196
+KE,Java,PostgreSQL,2,5.683
+KE,Kafka,Linux,2,11.188
+KE,Kafka,MySQL,2,25.571
+KE,Kafka,PostgreSQL,2,19.889
+KE,CI/CD,REST API,2,4.262
+KE,Java,Python,2,2.841
+KE,Network Security,Python,2,1.989
+KE,Agile,Testing,2,2.238
+KE,Cryptography,Git,2,3.008
+KE,Cryptography,ISO 27001,2,10.229
+KE,Cryptography,Network Security,2,5.114
+KE,Cryptography,Penetration Testing,2,8.524
+KE,Oracle,PostgreSQL,2,4.972
+KE,Oracle,SQL Server,2,8.95
+KE,AWS,Java,2,7.306
+KE,AWS,Kafka,2,25.571
+KE,Agile,Kubernetes,2,11.188
+KE,Agile,Linux,2,1.398
+KE,C#,MySQL,2,10.229
+KE,Cryptography,REST API,2,8.524
+KE,Cryptography,SQL,2,2.131
+KE,Cryptography,SQL Server,2,10.229
+KE,Cryptography,TypeScript,2,8.524
+KE,Cryptography,Vulnerability Assessment,2,12.786
+KE,Incident Response,Python,2,1.808
+KE,MySQL,SQL Server,2,10.229
+KE,MySQL,TypeScript,2,8.524
+KE,MySQL,Vulnerability Assessment,2,12.786
+KE,Network Security,Penetration Testing,2,5.967
+KE,Penetration Testing,Python,2,3.315
+KE,PostgreSQL,Vulnerability Assessment,2,9.944
+KE,Python,REST API,2,3.315
+KE,Python,Vulnerability Assessment,2,4.972
+KE,SQL,Vulnerability Assessment,2,3.729
+KE,SQL Server,Vulnerability Assessment,2,17.9
+KE,Cryptography,Jira,2,10.229
+KE,Incident Response,Jira,2,6.509
+KE,Incident Response,Oracle,2,4.068
+KE,Jira,Oracle,2,8.95
+KE,API Integration,Git,2,4.212
+KE,API Integration,GraphQL,2,35.8
+KE,API Integration,Linux,2,4.475
+KE,AWS,Cryptography,2,7.306
+KE,JavaScript,WordPress,2,8.136
+KE,Linux,Oracle,2,2.797
+KE,MySQL,Oracle,2,6.393
+KE,ETL,Oracle,2,5.594
+KE,Git,Network Security,2,2.106
+KE,Network Security,PostgreSQL,2,3.978
+KE,Network Security,SQL Server,2,7.16
+KE,AWS,Docker,2,7.306
+KE,AWS,Git,2,3.008
+KE,AWS,Node.js,2,12.786
+KE,AWS,OWASP,2,25.571
+KE,AWS,TypeScript,2,8.524
+KE,Azure,Cryptography,2,4.649
+KE,Azure,Docker,2,4.649
+KE,Azure,Microservices,2,8.136
+KE,Azure,MySQL,2,4.649
+KE,Azure,Node.js,2,8.136
+KE,Azure,OWASP,2,16.273
+KE,Azure,PostgreSQL,2,3.616
+KE,CI/CD,Microservices,2,6.393
+KE,CI/CD,Node.js,2,6.393
+KE,CI/CD,OWASP,2,12.786
+KE,Cryptography,Linux,2,3.196
+KE,Docker,JavaScript,2,4.649
+KE,Docker,Node.js,2,12.786
+KE,Git,GitHub,2,5.265
+KE,Git,GraphQL,2,10.529
+KE,GraphQL,Linux,2,11.188
+KE,JavaScript,Linux,2,2.034
+KE,JavaScript,Microservices,2,8.136
+KE,HTML,TypeScript,2,5.967
+KE,JavaScript,SQL,2,1.356
+KE,JavaScript,Testing,2,3.255
+KE,SQL,TypeScript,2,2.486
+KE,Testing,TypeScript,2,5.967
+KE,Agile,Network Security,2,2.238
+KE,Agile,PostgreSQL,2,2.486
+KE,JavaScript,OWASP,2,16.273
+KE,Linux,Microservices,2,5.594
+KE,Linux,Node.js,2,5.594
+KE,Microservices,Node.js,2,22.375
+KE,Microservices,TypeScript,2,14.917
+KE,Agile,Docker,2,3.196
+KE,Agile,System Design,2,3.729
+KE,HTML,REST API,2,5.967
+KE,JavaScript,MySQL,2,4.649
+KE,JavaScript,PHP,2,4.649
+KE,JavaScript,PostgreSQL,2,3.616
+KE,Laravel,MySQL,2,25.571
+KE,Laravel,PHP,2,25.571
+KE,Laravel,PostgreSQL,2,19.889
+KE,Laravel,REST API,2,29.833
+KE,PHP,PostgreSQL,2,5.683
+KE,Docker,Java,2,7.306
+KE,Docker,System Design,2,8.524
+KE,Git,Java,2,3.008
+KE,Java,Microservices,2,12.786
+KE,Microservices,System Design,2,14.917
+KE,Agile,JavaScript,2,2.034
+KE,Python,R,2,9.944
+KE,Python,Stakeholder Management,2,0.904
+KE,Linux,Testing,2,2.238
+KE,System Design,Testing,2,5.967
+KE,Linux,Python,2,1.243
+KE,LLM,Statistics,2,1.398
+KE,AWS,Google Cloud,2,25.571
+KE,Azure,HTML,2,3.255
+KE,C#,TypeScript,2,11.933
+KE,HTML,Testing,2,3.58
+KE,R,Statistics,2,11.188
+KE,Data Visualization,SQL,2,2.983
+KE,Data Warehousing,Power BI,2,11.933
+KE,Excel,SQL,2,0.262
+KE,Power BI,SQL,2,2.983
+KE,Agile,Databricks,2,7.458
+KE,Agile,GitHub,2,5.594
+KE,C#,Databricks,2,23.867
+KE,C#,ETL,2,8.95
+KE,C#,GitHub,2,17.9
+KE,CI/CD,Databricks,2,8.524
+KE,CI/CD,ETL,2,3.196
+KE,CI/CD,SQL,2,1.065
+KE,CI/CD,SQL Server,2,5.114
+KE,Data Warehousing,Vulnerability Assessment,2,14.917
+KE,ETL,Linux,2,2.797
+KE,CSS,MySQL,2,5.114
+KE,SQL,Statistics,2,0.932
+KE,Excel,Statistics,2,0.393
+KE,Claude,LLM,2,7.458
+KE,Azure,Google Cloud,2,16.273
+KE,Data Visualization,Python,2,3.978
+KE,Data Visualization,Statistics,2,4.475

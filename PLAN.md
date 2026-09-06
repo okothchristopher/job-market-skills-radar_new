@@ -99,6 +99,30 @@ Two smaller corrections:
 - **Speculative pagination was 404-ing against ourselves.** Fanning out to a fixed page count requested pages that do not exist — BrighterMonday's `software-data` category holds three pages, not seven — filling the failure table with our own mistakes rather than real problems. Pagination now advances one page at a time and stops when a page yields no postings.
 - **Remote roles must not be read as on-site.** schema.org signals remote with `jobLocationType: TELECOMMUTE` and frequently omits `jobLocation` entirely. Treating an absent location as on-site would have biased the remote share downward across the whole Kenyan corpus. `applicantLocationRequirements` supplies the geography instead.
 
+### What Phase 6 found: the corpora were not comparable
+
+The largest methodological problem in the project surfaced only once real
+numbers existed on both sides.
+
+**80.3% of global postings mention a technical skill, against 27.2% of Kenyan
+ones.** That is not a skills gap. The global sources are ATS boards belonging to
+technology companies, so nearly every posting is a tech role; Kenyan job boards
+carry every sector, so most postings are nursing, driving, sales and teaching.
+Dividing by *all* postings therefore diluted every Kenyan tech skill by roughly
+3x and manufactured a diffusion gap out of corpus composition alone.
+
+The fix is the denominator. Every share is now computed three ways —
+`pct_of_all`, `pct_of_tech` (postings mentioning at least one taxonomy skill),
+and `share_of_mentions` — and the engine uses **`pct_of_tech`**, the only one
+that means the same thing in both markets. The effect was large: skills with a
+positive raw gap fell from 88% to 72%, and the calibration offset grew from
+−0.003 to −0.041 as it began absorbing real residual bias rather than noise.
+
+A related correction: `insufficient_data` was being applied to 119 of 145
+skills, which was simply wrong — we hold 37,000 postings on them. That label is
+now reserved for genuinely thin cells, and skills that are merely small in both
+markets are `low_demand`.
+
 **Unexpected bonus:** BrighterMonday publishes `baseSalary` as a structured MonetaryAmount in KES on some postings. Kenyan salary data is scarce enough that this is worth having, and it is now captured.
 
 **Fuzu access note.** Its gzipped sitemaps sit behind a Cloudflare challenge (HTTP 403), but ordinary category pages serve fine to our identified user-agent. Category pages carry an `ItemList` JSON-LD naming each posting, which is more robust than anchor scraping. Note the URL trap: categories are `/{country}/job/{slug}` (singular) while postings are `/{country}/jobs/{slug}` (plural) — conflating them yields a crawl that finds no postings at all.
@@ -356,7 +380,7 @@ jobradar aggregate && jobradar watchlist
 | **3. Kenyan adapters** | Fuzu, BrighterMonday, MyJobMag, JobWebKenya | ≥ 1,500 current KE postings with populated `date_posted` and `description_text` |
 | **4. Extraction + taxonomy** | `skills.csv` (~150 skills, incl. diffusion baseline set) + extractor + tests | Precision ≥ 0.90 on 100 hand-labelled postings, checked separately for KE and global |
 | **5. Historical backfill** ⬇ | Wayback adapter, 2025-focused | 2025 BrighterMonday + MyJobMag replayed; 2024 volume measured and reported honestly, including if too thin to use |
-| **6. Diffusion engine** ⭐ | `diffusion.py` + calibration baseline + `skill_diffusion.csv` | Every skill classified; baseline correction applied; thesis backtest run (§11a) |
+| **6. Diffusion engine** ⭐ | `diffusion.py` + calibration baseline + `skill_diffusion.csv` | ✅ Every skill classified; baseline correction applied. **Thesis backtest deferred** — it needs Kenyan history, which requires Phase 5 |
 | **7. Watchlist + briefs** | `reports/` | Ranked teach-ahead watchlist + one brief per Zindua programme: add / expand / hold / retire |
 
 **Phase 2 moved ahead of Phase 3**, and Phase 5 dropped below extraction — global is now the load-bearing series, and it's also the cheapest and most reliable to collect. Phases 2 and 3 remain independently parallelisable.

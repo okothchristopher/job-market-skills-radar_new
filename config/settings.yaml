@@ -49,6 +49,10 @@ diffusion:
   # Without this the watchlist would just rank "how American is this technology".
   calibration_skills: [SQL, Git, Java, Excel, HTML, CSS, Linux]
 
+  # Thresholds are on pct_of_tech -- the share of TECHNICAL postings, not of all
+  # postings. That denominator is what makes the two markets comparable: 80% of
+  # global postings are technical against 27% of Kenyan ones, so an all-postings
+  # share would manufacture a gap out of corpus composition alone.
   teach_ahead_min_global_share: 0.05    # must be materially present globally
   teach_ahead_max_kenya_share: 0.02     # and near-absent locally
   teach_ahead_min_global_trend: 0.01    # and rising, not merely large

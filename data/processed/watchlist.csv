@@ -1,0 +1,3 @@
+skill,zindua_track,category,global_share_now,kenya_share_now,diffusion_gap,calibrated_gap,gap_rank,global_trend_12m,kenya_trend_12m,estimated_lag_months,status,confidence,is_calibration_baseline,months_observed,cell_usable
+AI Agents,AI Engineering,ai-concept,0.21795523045142065,0.0111731843575419,0.20678204609387876,0.24784895673999863,1.0,0.05047639501034171,,,teach_ahead,provisional,False,33.0,True
+Claude,AI Engineering,ai-platform,0.08364658471333265,0.01675977653631285,0.06688680817701981,0.10795371882313967,13.0,0.050546371928111206,,,teach_ahead,provisional,False,33.0,True

@@ -231,3 +231,42 @@ def extract_skills(
         "skill_matches": matches,
         "coverage": round(with_skills / jobs, 4) if jobs else 0.0,
     }
+
+
+def aggregate(config: Config, out_dir: str | None = None) -> tuple[dict, dict]:
+    """Build every tidy frame and the diffusion table, and write them to disk.
+
+    Returns ``(written_paths, diagnostics)``. Diagnostics carry the calibration
+    offset and the data-sufficiency flags, so a caller can see what the numbers
+    rest on rather than only the numbers.
+    """
+    from .aggregate import diffusion as dif
+    from .aggregate import frames as fr
+
+    db = config.path("raw_db")
+    jobs = fr.load_jobs(db)
+    job_skills = fr.load_job_skills(db)
+
+    skill_year = fr.build_skill_year(config, jobs, job_skills)
+    skill_month = fr.build_skill_month(config, jobs, job_skills)
+    skill_current = fr.build_skill_current(config, jobs, job_skills)
+
+    kenya_months = int(jobs.loc[jobs["source_group"] == "KE", "month"].nunique())
+    settings = dif.DiffusionSettings.from_config(config)
+    skill_diffusion, diagnostics = dif.build_diffusion(
+        skill_current, skill_month, settings, kenya_months_observed=kenya_months
+    )
+
+    frames = {
+        "jobs": jobs,
+        "skill_current": skill_current,
+        "skill_year": skill_year,
+        "skill_month": skill_month,
+        "skill_diffusion": skill_diffusion,
+        "watchlist": dif.watchlist(skill_diffusion, limit=40),
+        "track_summary": dif.track_summary(skill_diffusion),
+        "cooccurrence_global": fr.build_cooccurrence(job_skills, "GLOBAL"),
+        "cooccurrence_kenya": fr.build_cooccurrence(job_skills, "KE", min_pairs=2),
+    }
+    written = fr.export(frames, out_dir or config.path("processed"))
+    return written, diagnostics

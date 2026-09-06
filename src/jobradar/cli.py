@@ -284,5 +284,104 @@ def extract(
     store.close()
 
 
+@app.command()
+def aggregate(
+    out: str = typer.Option(None, help="Output directory (default: data/processed)"),
+    verbose: bool = typer.Option(False, "--verbose", "-v"),
+) -> None:
+    """Build the tidy frames and the diffusion table."""
+    _setup_logging(verbose)
+    config = Config.load()
+    written, diag = pipeline.aggregate(config, out_dir=out)
+
+    table = Table(title="Frames written")
+    table.add_column("frame")
+    table.add_column("path")
+    for name, path in written.items():
+        table.add_row(name, path)
+    console.print(table)
+
+    console.print("\n[bold]Diffusion diagnostics[/bold]")
+    console.print(f"  raw gaps positive        : {diag['positive_raw_gap_share']:.0%} of skills")
+    console.print(
+        f"  calibration offset       : {diag['calibration_offset']:+.4f} "
+        f"(from {diag['calibration_skills_found']} baseline skills, "
+        f"{'applied' if diag['calibration_applied'] else 'NOT applied'})"
+    )
+    console.print(
+        f"  Kenyan months observed   : {diag['kenya_months_observed']} "
+        f"({'sufficient' if diag['kenya_history_sufficient'] else 'too few for a trend'})"
+    )
+    lag = "on" if diag["lag_estimate_enabled"] else "null by design"
+    console.print(f"  lag estimate             : {lag}")
+    console.print(f"  skills classified        : {diag['skills']}")
+
+    counts = Table(title="Status breakdown")
+    counts.add_column("status")
+    counts.add_column("skills", justify="right")
+    for status, n in sorted(diag["status_counts"].items(), key=lambda kv: -kv[1]):
+        counts.add_row(status, str(n))
+    console.print(counts)
+
+    if not diag["kenya_history_sufficient"]:
+        console.print(
+            "\n[yellow]No Kenyan history: live boards delete expired postings, so the\n"
+            "Kenyan corpus is single-year. teach_ahead and global_only cannot be fully\n"
+            "separated yet and are marked provisional. Wayback backfill (Phase 5) or a\n"
+            "few monthly runs will resolve this.[/yellow]"
+        )
+
+
+@app.command()
+def watchlist(
+    limit: int = typer.Option(20, help="How many skills to show"),
+    track: str = typer.Option(None, help="Filter to one Zindua programme"),
+) -> None:
+    """Show the teach-ahead watchlist: skills to teach before Kenya asks."""
+    import pandas as pd
+
+    config = Config.load()
+    path = config.path("processed") / "skill_diffusion.csv"
+    if not path.exists():
+        console.print("[red]Run `jobradar aggregate` first.[/red]")
+        raise typer.Exit(code=1)
+
+    frame = pd.read_csv(path)
+    if track:
+        frame = frame[frame["zindua_track"].str.contains(track, case=False, na=False)]
+
+    ahead = frame[frame["status"] == "teach_ahead"].head(limit)
+    table = Table(title="Teach-ahead watchlist")
+    for column in ("skill", "Zindua track", "global", "kenya", "cal. gap", "trend", "conf."):
+        table.add_column(column, justify="left" if column in ("skill", "Zindua track") else "right")
+    for _, r in ahead.iterrows():
+        trend = r.get("global_trend_12m")
+        table.add_row(
+            str(r["skill"]),
+            str(r["zindua_track"])[:26],
+            f"{r['global_share_now']:.1%}",
+            f"{r['kenya_share_now']:.1%}",
+            f"{r['calibrated_gap']:+.1%}",
+            "n/a" if pd.isna(trend) else f"{trend:+.2%}",
+            str(r.get("confidence", "")),
+        )
+    console.print(table)
+
+    local = frame[frame["status"] == "kenya_specific"].head(10)
+    if not local.empty:
+        t2 = Table(title="Kenya-specific — real local demand the global signal is blind to")
+        for column in ("skill", "Zindua track", "global", "kenya"):
+            left = "skill" in column or "track" in column
+            t2.add_column(column, justify="left" if left else "right")
+        for _, r in local.iterrows():
+            t2.add_row(
+                str(r["skill"]),
+                str(r["zindua_track"])[:26],
+                f"{r['global_share_now']:.1%}",
+                f"{r['kenya_share_now']:.1%}",
+            )
+        console.print(t2)
+
+
 if __name__ == "__main__":
     app()

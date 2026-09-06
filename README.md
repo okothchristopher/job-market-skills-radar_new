@@ -89,6 +89,23 @@ than aggregators. Remote-only boards are held to a small share on purpose: they
 skew hardest toward modern stacks, and over-weighting them would inflate the
 diffusion gap for every skill at once.
 
+## First findings
+
+Global demand, share of technical postings, from the unbroken Hacker News monthly series:
+
+| skill | 2024 | 2025 | 2026 | change |
+|---|---:|---:|---:|---:|
+| AI Agents | 1.8% | 11.2% | 18.5% | **+16.7pp** |
+| Claude | 1.0% | 2.4% | 8.8% | +7.8pp |
+| PostgreSQL | 16.5% | 19.5% | 24.1% | +7.7pp |
+| LLM | 11.4% | 15.3% | 17.5% | +6.1pp |
+| JavaScript | 7.7% | 5.1% | 4.2% | −3.5pp |
+| Machine Learning | 20.4% | 19.3% | 18.6% | −1.9pp |
+
+Two skills currently classify as **teach-ahead** — large and rising globally, near-absent in Kenya: **AI Agents** and **Claude**, both in the AI Engineering track. Four classify as **kenya_specific**, led by **Excel at 31.8% of Kenyan technical postings against 3.9% globally**.
+
+Both sets are marked `provisional`: without Kenyan history, `teach_ahead` and `global_only` cannot be fully separated. See the caveat in [PLAN.md](PLAN.md).
+
 ## Build status
 
 | Phase | State |
@@ -98,7 +115,7 @@ diffusion gap for every skill at once.
 | 3. Kenyan adapters — Fuzu, BrighterMonday, MyJobMag | ✅ done |
 | 4. Extraction + taxonomy — 147 skills, all mapped to a Zindua track | ✅ done |
 | 5. Historical backfill (Wayback) | pending |
-| 6. Diffusion engine | pending |
+| 6. Diffusion engine — calibrated gap, status classification, watchlist | ✅ done |
 | 7. Watchlist + track briefs | pending |
 
 ## Crawling conduct
