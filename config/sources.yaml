@@ -183,9 +183,19 @@ sources:
     group: null                 # inherits the group of the source it replays
     domain: web.archive.org
     rate_per_second: 1.0        # archive.org is stricter than the live sites
+    timeout_seconds: 120        # wildcard CDX queries routinely take a minute
     cdx_endpoint: http://web.archive.org/cdx/search/cdx
     replay_template: "http://web.archive.org/web/{timestamp}id_/{url}"
-    years: [2025]
+    # Archive year is NOT posting year: a page crawled in May 2025 can carry a
+    # datePosted from 2024, because the posting was already old when the archive
+    # found it. We replay what the archive holds and read the real datePosted off
+    # each page -- which is how 2024 data surfaces at all, given that direct 2024
+    # crawls of these listing URLs number in the single digits.
+    years: [2025, 2024]
+    # Roughly 19,800 BrighterMonday listings were archived in 2025; replaying all
+    # of them at 1 req/s would take over five hours. The budget accumulates
+    # across monthly runs, and the queue makes a killed run resumable.
+    max_urls_per_board: 2500
     replays:
       - brightermonday
       - myjobmag

@@ -15,6 +15,7 @@ from . import (  # noqa: F401  isort:skip
     hn_hiring,
     kenya,
     remote_boards,
+    wayback,
 )
 
 __all__ = ["SourceAdapter", "registry"]

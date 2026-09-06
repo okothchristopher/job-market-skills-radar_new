@@ -302,6 +302,26 @@ class JobStore:
             )
             self._conn.commit()
 
+    def requeue_failed(self, source: str | None = None, max_attempts: int = 6) -> int:
+        """Return failed URLs to the pending queue.
+
+        Transient network faults are not permanent facts about a URL. A DNS
+        blip mid-crawl marked 624 Fuzu postings failed; every one of them
+        resolved fine minutes later. Without this they would be lost until
+        someone noticed the count was short.
+
+        ``max_attempts`` stops a genuinely dead URL from being retried forever.
+        """
+        sql = "UPDATE crawl_queue SET state = 'pending' WHERE state = 'failed' AND attempts < ?"
+        params: list = [max_attempts]
+        if source:
+            sql += " AND source = ?"
+            params.append(source)
+        with self._lock:
+            cursor = self._conn.execute(sql, params)
+            self._conn.commit()
+            return cursor.rowcount
+
     def queue_stats(self, source: str | None = None) -> dict[str, int]:
         sql = "SELECT state, COUNT(*) FROM crawl_queue"
         params: tuple = ()

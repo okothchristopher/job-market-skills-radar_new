@@ -379,7 +379,7 @@ jobradar aggregate && jobradar watchlist
 | **2. Global adapters** ⬆ | Greenhouse, Ashby, HN Who's Hiring, 4 remote APIs + `companies.yaml` | ≥ 40,000 global postings; HN covers every month 2024-01 → present |
 | **3. Kenyan adapters** | Fuzu, BrighterMonday, MyJobMag, JobWebKenya | ≥ 1,500 current KE postings with populated `date_posted` and `description_text` |
 | **4. Extraction + taxonomy** | `skills.csv` (~150 skills, incl. diffusion baseline set) + extractor + tests | Precision ≥ 0.90 on 100 hand-labelled postings, checked separately for KE and global |
-| **5. Historical backfill** ⬇ | Wayback adapter, 2025-focused | 2025 BrighterMonday + MyJobMag replayed; 2024 volume measured and reported honestly, including if too thin to use |
+| **5. Historical backfill** ⬇ | Wayback adapter, 2025-focused | ✅ CDX enumeration + `id_` raw replay through the live parsers. 4,976 archived postings queued; `datePosted` confirmed to predate the archive date, which is how 2024 data surfaces |
 | **6. Diffusion engine** ⭐ | `diffusion.py` + calibration baseline + `skill_diffusion.csv` | ✅ Every skill classified; baseline correction applied. **Thesis backtest deferred** — it needs Kenyan history, which requires Phase 5 |
 | **7. Watchlist + briefs** | `reports/` | Ranked teach-ahead watchlist + one brief per Zindua programme: add / expand / hold / retire |
 

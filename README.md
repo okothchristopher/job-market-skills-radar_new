@@ -31,7 +31,7 @@ FETCH ──▶ SOURCE ADAPTERS ──▶ STORE ──▶ EXTRACT ──▶ AGGR
 
 Two rules apply to the global sources specifically. **ATS boards are not a history source**: 84% of their open postings are from the current year, and the older tail is survivorship-biased toward evergreen and hard-to-fill roles, so it is excluded from trend analysis. And **Remotive is disabled** — its robots.txt disallows the API path it publishes docs for, and this project honours robots without exceptions.
 
-**Historical** — Wayback Machine replay, which retains the full JSON-LD including a `datePosted` that is often older than the archive date.
+**Historical** — Wayback Machine replay. This is the *only* source of Kenyan history: live boards delete expired postings, so a fresh Kenyan crawl returns 2026 and nothing else. Archived pages still carry the site's JSON-LD, so the same parser reads them, and crucially `datePosted` is often older than the archive date — which is how 2024 postings surface at all.
 
 **Excluded by design** — LinkedIn, Indeed, Glassdoor, ZipRecruiter. Anti-scraping terms, active blocking and CAPTCHAs.
 
@@ -114,7 +114,7 @@ Both sets are marked `provisional`: without Kenyan history, `teach_ahead` and `g
 | 2. Global adapters — Greenhouse, Ashby, HN, remote APIs | ✅ done |
 | 3. Kenyan adapters — Fuzu, BrighterMonday, MyJobMag | ✅ done |
 | 4. Extraction + taxonomy — 147 skills, all mapped to a Zindua track | ✅ done |
-| 5. Historical backfill (Wayback) | pending |
+| 5. Historical backfill (Wayback) — the only source of Kenyan history | ✅ done |
 | 6. Diffusion engine — calibrated gap, status classification, watchlist | ✅ done |
 | 7. Watchlist + track briefs | pending |
 

@@ -285,6 +285,34 @@ def extract(
 
 
 @app.command()
+def retry(
+    sources: str = typer.Option(..., help="Comma-separated source names, or a group"),
+    max_attempts: int = typer.Option(6, help="Give up on a URL after this many tries"),
+) -> None:
+    """Return failed URLs to the queue, then re-run `fetch` to collect them.
+
+    Transient faults are not permanent facts about a URL: a DNS blip mid-crawl
+    marked 624 postings failed, all of which resolved fine minutes later.
+    """
+    _setup_logging()
+    config = Config.load()
+    store = JobStore(config.path("raw_db"))
+    try:
+        names = pipeline.resolve_sources(sources, config)
+    except KeyError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    total = 0
+    for name in names:
+        n = store.requeue_failed(name, max_attempts=max_attempts)
+        total += n
+        console.print(f"  {name}: {n:,} URLs returned to the queue")
+    console.print(f"\n[bold]{total:,}[/bold] requeued. Run `jobradar fetch` to collect them.")
+    store.close()
+
+
+@app.command()
 def aggregate(
     out: str = typer.Option(None, help="Output directory (default: data/processed)"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),

@@ -37,27 +37,52 @@ def _connect(db_path: str | Path) -> sqlite3.Connection:
 
 
 def load_jobs(db_path: str | Path) -> pd.DataFrame:
-    """Every posting, without the description bodies."""
+    """Every posting, without the description bodies, de-duplicated across replay.
+
+    A posting can be collected twice: once live from the board, and once again
+    from a Wayback snapshot of the same URL. The Wayback adapter deliberately
+    derives its ``native_id`` from the original URL so the two are recognisable
+    as the same posting — this is where they get collapsed.
+
+    The live row wins. It is the same posting, and keeping the replayed copy
+    would double-count it in exactly the segment (Kenya) whose counts are
+    smallest and therefore most sensitive.
+    """
     with _connect(db_path) as conn:
-        return pd.read_sql_query(
+        frame = pd.read_sql_query(
             "SELECT job_id, source, source_group, country, title, company, "
-            "is_remote, year, month, seniority_placeholder FROM ("
-            "  SELECT job_id, source, source_group, country, title, company, "
-            "  is_remote, year, month, NULL AS seniority_placeholder FROM jobs"
-            ")",
+            "is_remote, year, month, native_id, is_historical FROM jobs",
             conn,
-        ).drop(columns=["seniority_placeholder"])
+        )
+
+    # "wayback_brightermonday" replays "brightermonday".
+    replayed = frame["source"].str.startswith("wayback_", na=False)
+    frame["_board"] = frame["source"].where(
+        ~replayed, frame["source"].str.replace("wayback_", "", regex=False)
+    )
+
+    live_keys = set(map(tuple, frame.loc[~replayed, ["_board", "native_id"]].dropna().to_numpy()))
+    duplicate = replayed & frame.apply(lambda r: (r["_board"], r["native_id"]) in live_keys, axis=1)
+    return frame.loc[~duplicate].drop(columns=["_board"])
 
 
-def load_job_skills(db_path: str | Path) -> pd.DataFrame:
-    """One row per (posting, skill), joined to the posting's segment and date."""
+def load_job_skills(db_path: str | Path, jobs: pd.DataFrame | None = None) -> pd.DataFrame:
+    """One row per (posting, skill), joined to the posting's segment and date.
+
+    Pass ``jobs`` (from :func:`load_jobs`) to inherit its replay de-duplication.
+    Without it, a posting collected both live and from Wayback contributes its
+    skills twice.
+    """
     with _connect(db_path) as conn:
-        return pd.read_sql_query(
+        frame = pd.read_sql_query(
             "SELECT s.job_id, s.skill, s.canonical_name, s.category, s.zindua_track, "
             "s.n_mentions, s.matched_in, j.source, j.source_group, j.year, j.month "
             "FROM job_skills s JOIN jobs j ON j.job_id = s.job_id",
             conn,
         )
+    if jobs is not None and not jobs.empty:
+        frame = frame[frame["job_id"].isin(set(jobs["job_id"]))]
+    return frame
 
 
 def _totals(jobs: pd.DataFrame, keys: list[str]) -> pd.DataFrame:
@@ -131,19 +156,34 @@ def build_skill_share(
     return frame.sort_values([*keys, "pct_share"], ascending=[*([True] * len(keys)), False])
 
 
+def _history_mask(frame: pd.DataFrame, history: set[str]) -> pd.Series:
+    """Match trusted history sources, including per-board Wayback variants.
+
+    Replayed sources are named ``wayback_brightermonday`` and the like, so the
+    configured entry ``wayback`` has to match by prefix. An exact-match filter
+    would silently exclude every backfilled posting -- the whole point of the
+    Wayback phase -- and leave the Kenyan series looking empty.
+    """
+    exact = frame["source"].isin(history)
+    prefixes = [h for h in history if h == "wayback"]
+    if not prefixes:
+        return exact
+    return exact | frame["source"].str.startswith("wayback_", na=False)
+
+
 def build_skill_year(config: Config, jobs: pd.DataFrame, job_skills: pd.DataFrame) -> pd.DataFrame:
     """Skill share by (source_group, year), restricted to unbiased history sources."""
     history = set(config.settings.get("analysis", {}).get("unbiased_history_sources", []))
-    j = jobs[jobs["source"].isin(history) & jobs["year"].notna()]
-    s = job_skills[job_skills["source"].isin(history) & job_skills["year"].notna()]
+    j = jobs[_history_mask(jobs, history) & jobs["year"].notna()]
+    s = job_skills[_history_mask(job_skills, history) & job_skills["year"].notna()]
     return build_skill_share(j, s, ["source_group", "year"], config.min_cell_size)
 
 
 def build_skill_month(config: Config, jobs: pd.DataFrame, job_skills: pd.DataFrame) -> pd.DataFrame:
     """Skill share by (source_group, month) — the series a lag estimate needs."""
     history = set(config.settings.get("analysis", {}).get("unbiased_history_sources", []))
-    j = jobs[jobs["source"].isin(history) & jobs["month"].notna()]
-    s = job_skills[job_skills["source"].isin(history) & job_skills["month"].notna()]
+    j = jobs[_history_mask(jobs, history) & jobs["month"].notna()]
+    s = job_skills[_history_mask(job_skills, history) & job_skills["month"].notna()]
     return build_skill_share(j, s, ["source_group", "month"], config.min_cell_size)
 
 

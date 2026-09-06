@@ -423,3 +423,66 @@ def test_cooccurrence_lift_above_one_means_paired():
     pair = out[(out.skill_a == "React") & (out.skill_b == "TypeScript")]
     assert not pair.empty
     assert pair.iloc[0]["lift"] > 1.0
+
+
+# ------------------------------------------- Wayback replay de-duplication
+
+
+def test_replayed_duplicate_of_a_live_posting_is_dropped(tmp_path):
+    """A posting can be collected live and again from a Wayback snapshot.
+
+    The replay adapter derives native_id from the original URL precisely so the
+    two are recognisable as one posting. Keeping both would double-count it in
+    the Kenyan segment -- the smallest, and so the most distortable.
+    """
+    import sqlite3
+
+    from jobradar.store.db import JobStore
+    from jobradar.store.models import GROUP_KE, RawJob
+
+    db = tmp_path / "jobs.sqlite"
+    store = JobStore(db)
+    store.upsert_jobs(
+        [
+            RawJob(
+                source="brightermonday",
+                source_group=GROUP_KE,
+                native_id="abc123",
+                url="https://x/listings/abc123",
+                title="Dev",
+            ),
+            RawJob(
+                source="wayback_brightermonday",
+                source_group=GROUP_KE,
+                native_id="abc123",
+                url="http://web.archive.org/…",
+                title="Dev",
+                is_historical=True,
+            ),
+            RawJob(
+                source="wayback_brightermonday",
+                source_group=GROUP_KE,
+                native_id="only-archived",
+                url="http://web.archive.org/…",
+                title="Old Dev",
+                is_historical=True,
+            ),
+        ]
+    )
+    store.close()
+
+    jobs = fr.load_jobs(db)
+    assert len(jobs) == 2, "the replayed copy of a live posting must be dropped"
+    assert set(jobs["native_id"]) == {"abc123", "only-archived"}
+    # The live row is the one kept.
+    assert jobs.loc[jobs.native_id == "abc123", "source"].iloc[0] == "brightermonday"
+    assert sqlite3.connect(db).execute("SELECT COUNT(*) FROM jobs").fetchone()[0] == 3
+
+
+def test_history_mask_matches_wayback_board_variants():
+    """Sources are named wayback_brightermonday, so the configured entry
+    'wayback' must match by prefix. An exact match would silently exclude every
+    backfilled posting -- the whole point of the phase."""
+    frame = pd.DataFrame({"source": ["hn_hiring", "wayback_brightermonday", "greenhouse"]})
+    mask = fr._history_mask(frame, {"hn_hiring", "wayback"})
+    assert list(mask) == [True, True, False]

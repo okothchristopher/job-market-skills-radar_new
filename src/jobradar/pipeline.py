@@ -245,7 +245,7 @@ def aggregate(config: Config, out_dir: str | None = None) -> tuple[dict, dict]:
 
     db = config.path("raw_db")
     jobs = fr.load_jobs(db)
-    job_skills = fr.load_job_skills(db)
+    job_skills = fr.load_job_skills(db, jobs=jobs)
 
     skill_year = fr.build_skill_year(config, jobs, job_skills)
     skill_month = fr.build_skill_month(config, jobs, job_skills)
