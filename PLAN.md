@@ -155,10 +155,33 @@ Kept from the old repo: the CSV-driven taxonomy, the `Skill,Category` shape, the
 
 Live boards delete expired postings. Scraping today (September 2026) gives 2026, a thin tail of 2025, and almost nothing from 2024.
 
-I verified the Wayback fallback works: archived BrighterMonday pages **retain the full JSON-LD `JobPosting`**, and `datePosted` is often older than the archive date (one 2024-archived page carried `datePosted: 2023-09-05`), so 2025-archived pages still yield 2024-posted jobs. But coverage is lopsided — measured via the CDX API, unique listing URLs, HTTP 200:
+I verified the Wayback fallback works: archived BrighterMonday pages **retain the full JSON-LD `JobPosting`**, and `datePosted` is often older than the archive date, so 2025-archived pages still yield 2024-posted jobs.
 
-- **2025 archive crawls: ~19,800 BrighterMonday listings** — rich.
-- **2024 archive crawls: ~7 listings** — negligible.
+> ### ⚠️ Correction (made during Phase 5)
+>
+> The Phase 1 coverage measurement below was **wrong**, and it was load-bearing.
+>
+> | | claimed in Phase 1 | actually measured in Phase 5 |
+> |---|---|---|
+> | BrighterMonday, archived 2024 | ~7 listings | **11,005** |
+> | BrighterMonday, archived 2025 | ~19,800 | 19,802 |
+> | MyJobMag, archived 2024 | not measured | **18,601** |
+> | MyJobMag, archived 2025 | not measured | 7,554 |
+>
+> The "~7" came from the same CDX defect found in Phase 5: the API prefix-matches
+> and sorts alphabetically, so an unfiltered query returns unrelated URL shapes
+> first and any row limit truncates before the real listings appear. Adding a
+> server-side regex filter changed the answer by three orders of magnitude.
+>
+> **Consequence: representative 2024 Kenyan data does exist** — roughly 29,600
+> snapshots archived *during* 2024 across the two boards. The premise that 2024
+> was effectively unavailable locally was mistaken, and D3 (dropping Adzuna,
+> partly because 2024 looked unreachable) deserves revisiting if 2024 matters.
+
+Original Phase 1 figures, retained for the record:
+
+- 2025 archive crawls: ~19,800 BrighterMonday listings.
+- 2024 archive crawls: ~7 listings — **this figure was a measurement artefact.**
 
 **Settled position (approved):** the deliverable is **2026 depth + 2025 comparison + 2024 directional signal**, not three equal years. Enforced in code: any (skill, year, segment) cell with `n_jobs_total < 100` is greyed out and excluded from trend claims.
 

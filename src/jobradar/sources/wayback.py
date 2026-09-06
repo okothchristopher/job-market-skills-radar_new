@@ -103,21 +103,36 @@ class WaybackAdapter(SourceAdapter):
         return [int(y) for y in (self.config.get("years") or [2025])]
 
     def discover(self) -> Iterator[str]:
+        """Yield replay URLs, budgeting **per board per year**.
+
+        Budgeting per board alone silently defeats the point of listing more
+        than one year: the first year exhausts the allowance and the later ones
+        are never queried at all. That happened — an entire backfill run drew
+        exclusively from 2025 crawls, so every "2024" posting it produced was
+        one that had merely stayed live into 2025. Survivorship bias, in the one
+        place the project cannot afford it, arrived through a loop bound.
+
+        Each year gets its own allowance, so a 2024 posting comes from a 2024
+        crawl and is a representative sample of that year.
+        """
         budget = int(self.config.get("max_urls_per_board", 3000))
+        years = self.years()
+        per_year = max(1, budget // max(len(years), 1))
+
         for board in self.boards():
-            found = 0
-            for year in self.years():
-                if found >= budget:
-                    break
-                for original, timestamp in self._cdx(board, year, budget - found):
+            total = 0
+            for year in years:
+                found = 0
+                for original, timestamp in self._cdx(board, year, per_year):
                     # Enforced here as well as via the CDX `limit`, because the
-                    # server is free to return more rows than asked for and the
-                    # budget is what keeps a run bounded.
-                    if found >= budget:
+                    # server is free to return more rows than asked for.
+                    if found >= per_year:
                         break
                     found += 1
+                    total += 1
                     yield REPLAY_URL.format(timestamp=timestamp, url=original)
-            log.info("wayback: %s -> %d archived snapshots", board, found)
+                log.info("wayback: %s %s -> %d snapshots", board, year, found)
+            log.info("wayback: %s -> %d snapshots across %d years", board, total, len(years))
 
     def _cdx(self, board: str, year: int, limit: int) -> list[tuple[str, str]]:
         """Enumerate archived snapshots for one board and archive year.

@@ -194,3 +194,43 @@ def test_unparseable_archive_pages_are_skipped(body):
 def test_unknown_board_is_ignored():
     url = REPLAY_URL.format(timestamp="20250101000000", url="https://example.com/jobs/x")
     assert list(adapter().parse(response(url, BRIGHTERMONDAY_HTML))) == []
+
+
+# --------------------------------- regression: budget starved the later years
+
+
+def test_budget_is_allocated_per_year_not_per_board():
+    """Budgeting per board alone silently defeats listing more than one year.
+
+    The first year exhausts the allowance and the later ones are never queried,
+    so an entire backfill run drew only from 2025 crawls -- making every "2024"
+    posting it produced one that had merely stayed live into 2025. That is
+    survivorship bias in the one place the project cannot afford it, arriving
+    through a loop bound.
+    """
+    calls: list[str] = []
+
+    class YearAwareClient:
+        def get(self, url, **kwargs):
+            calls.append(url)
+            year = "2024" if "from=2024" in url else "2025"
+            rows = [["original", "timestamp"]] + [
+                [
+                    f"https://www.brightermonday.co.ke/listings/{year}-job-{i}-abc",
+                    f"{year}0101000000",
+                ]
+                for i in range(500)
+            ]
+            return response(url, json.dumps(rows))
+
+    a = WaybackAdapter(
+        YearAwareClient(),
+        {"replays": ["brightermonday"], "years": [2025, 2024], "max_urls_per_board": 100},
+    )
+    urls = list(a.discover())
+
+    assert any("from=2024" in c for c in calls), "the 2024 archive year was never queried"
+    from_2024 = [u for u in urls if "/2024-job-" in u]
+    from_2025 = [u for u in urls if "/2025-job-" in u]
+    assert len(from_2024) == 50 and len(from_2025) == 50
+    assert len(urls) == 100
