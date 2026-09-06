@@ -66,6 +66,29 @@ See what has been collected, and which year/segment cells are usable:
 uv run jobradar status
 ```
 
+## What is collected
+
+As of the Phase 2 run (September 2026) — **36,782 global postings**, 98–100% carrying a
+substantial description and 100% carrying a real publish date:
+
+| source | postings | role |
+|---|---:|---|
+| Greenhouse | 16,222 | first-party employer boards (197 companies) |
+| Hacker News | 10,601 | historical spine — 33 unbroken months from Jan 2024 |
+| Ashby | 8,309 | first-party employer boards (176 companies) |
+| Himalayas | 1,200 | remote-market breadth |
+| Arbeitnow | 250 | remote-market breadth |
+| Jobicy | 200 | remote-market breadth |
+
+Trend-usable history, after excluding the survivorship-biased ATS tail:
+2024 — 3,900 · 2025 — 4,022 · 2026 — 2,679. All three clear the 100-posting
+threshold, so the global year-over-year comparison is sound.
+
+The mix is deliberately weighted toward first-party employer data (67%) rather
+than aggregators. Remote-only boards are held to a small share on purpose: they
+skew hardest toward modern stacks, and over-weighting them would inflate the
+diffusion gap for every skill at once.
+
 ## Build status
 
 | Phase | State |
