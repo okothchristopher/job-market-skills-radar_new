@@ -27,7 +27,9 @@ FETCH ──▶ SOURCE ADAPTERS ──▶ STORE ──▶ EXTRACT ──▶ AGGR
 
 **Kenya** — BrighterMonday, MyJobMag, Fuzu, JobWebKenya. All serve server-side HTML with JSON-LD `JobPosting` blocks, so no browser automation is needed. Crawled via category paths and sitemaps only, never keyword-search URLs (which BrighterMonday and MyJobMag both disallow in robots.txt).
 
-**Global** — Greenhouse and Ashby public board APIs are the backbone: first-party employer data, hundreds of fully-described postings per request. Hacker News "Who is hiring?" via Algolia provides the historical spine, complete monthly from 2024. Remotive, Arbeitnow, Jobicy and Himalayas add remote-market breadth.
+**Global** — Greenhouse and Ashby public board APIs are the backbone: first-party employer data, hundreds of fully-described postings per request, from a bootstrapped list of confirmed company boards. Hacker News "Who is hiring?" via Algolia provides the historical spine — 33 unbroken monthly threads from January 2024. Arbeitnow, Jobicy and Himalayas add remote-market breadth.
+
+Two rules apply to the global sources specifically. **ATS boards are not a history source**: 84% of their open postings are from the current year, and the older tail is survivorship-biased toward evergreen and hard-to-fill roles, so it is excluded from trend analysis. And **Remotive is disabled** — its robots.txt disallows the API path it publishes docs for, and this project honours robots without exceptions.
 
 **Historical** — Wayback Machine replay, which retains the full JSON-LD including a `datePosted` that is often older than the archive date.
 
@@ -69,7 +71,7 @@ uv run jobradar status
 | Phase | State |
 |---|---|
 | 1. Fetch core — robots gate, rate limiter, cache, store, CLI | ✅ done |
-| 2. Global adapters — Greenhouse, Ashby, HN, remote APIs | pending |
+| 2. Global adapters — Greenhouse, Ashby, HN, remote APIs | ✅ done |
 | 3. Kenyan adapters — Fuzu, BrighterMonday, MyJobMag, JobWebKenya | pending |
 | 4. Extraction + taxonomy | pending |
 | 5. Historical backfill (Wayback) | pending |

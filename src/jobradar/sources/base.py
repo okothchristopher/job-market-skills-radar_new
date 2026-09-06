@@ -51,6 +51,19 @@ class SourceAdapter(ABC):
         carrying hundreds of comments.
         """
 
+    def next_urls(self, response: Response) -> Iterable[str]:
+        """URLs to enqueue after parsing ``response``.
+
+        Discovery cannot enumerate cursor-paginated or link-followed sources
+        ahead of time — the next page's address only exists once the current one
+        has been fetched. Returning them here lets the pipeline keep draining,
+        while the queue stays the single source of truth about what is left.
+
+        Himalayas uses this for its ``nextCursor``; the Kenyan adapters will use
+        it for category pagination and sitemap fan-out in Phase 3.
+        """
+        return ()
+
     def is_detail_url(self, url: str) -> bool:
         """Whether a discovered URL is a posting rather than an index page."""
         return True

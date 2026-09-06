@@ -94,11 +94,34 @@ sources:
     items_endpoint: https://hn.algolia.com/api/v1/items/{id}
 
   remotive:
-    enabled: true
+    # DISABLED. Remotive's robots.txt contains `Disallow: /api/*`, which covers
+    # the very endpoint they publish documentation for. The robots gate caught
+    # this on the first live run.
+    #
+    # There is a real tension -- they grant API access in their docs while
+    # disallowing the path to crawlers -- but this project treats robots.txt as a
+    # hard gate with no per-source exceptions, and their API terms are separately
+    # restrictive (max ~4 requests/day, no republishing, paid tier from $5k/mo).
+    # Arbeitnow, Jobicy and Himalayas cover the same remote-market breadth, so
+    # the cost of honouring it is close to zero.
+    #
+    # Re-enable only with written permission from Remotive.
+    enabled: false
     group: GLOBAL
     domain: remotive.com
     rate_per_second: 1.0
     endpoint: https://remotive.com/api/remote-jobs
+    # Remotive's API terms explicitly advise a maximum of ~4 requests per day and
+    # state that excessive requests are blocked. A 6-hour cache TTL enforces that
+    # through the existing cache rather than relying on us to remember.
+    #
+    # Their terms also prohibit republishing their listings to third-party job
+    # sites. We publish aggregate skill statistics and never republish postings,
+    # which is within what they permit -- but any report drawing on this source
+    # must credit Remotive with a link back.
+    cache_ttl_hours: 6
+    attribution_required: true
+    attribution: "Job data via Remotive (https://remotive.com)"
 
   arbeitnow:
     enabled: true
@@ -113,13 +136,18 @@ sources:
     domain: jobicy.com
     rate_per_second: 1.0
     endpoint: https://jobicy.com/api/v2/remote-jobs
+    # Jobicy asks to be clearly credited with a direct link to the source.
+    cache_ttl_hours: 12
+    attribution_required: true
+    attribution: "Job data via Jobicy (https://jobicy.com)"
 
   himalayas:
     enabled: true
     group: GLOBAL
     domain: himalayas.app
     rate_per_second: 1.0
-    endpoint: https://himalayas.app/jobs/api
+    endpoint: https://himalayas.app/jobs/api?limit=100
+    max_pages: 60          # ~103k postings available; a cap, not a target
 
   # ------------------------------------------------------------ Historical
   # Wayback replay. Verified to retain the full JSON-LD JobPosting, including a

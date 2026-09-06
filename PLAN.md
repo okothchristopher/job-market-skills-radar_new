@@ -59,7 +59,30 @@ I probed the real sources rather than assuming.
 | Lever `api.lever.co/v0/postings/{co}` | **404 on every company tested** (netlify, figma, plaid, mixpanel) — endpoint appears retired | **Dropped** |
 | LinkedIn · Indeed · Glassdoor · ZipRecruiter | Your previous repo already hit non-200 on Glassdoor and ZipRecruiter | **Excluded by design** — ToS + active blocking + CAPTCHAs |
 
-**One request per company** is what makes the global side scale without rate-limit risk. A curated list of ~400 Greenhouse/Ashby companies yields roughly 50k–150k richly-described postings from ~400 requests.
+**One request per company** is what makes the global side scale without rate-limit risk.
+
+### What Phase 2 actually found when built
+
+Four things changed the design, and all four are the kind that would have quietly corrupted the analysis if found later.
+
+**1. The ATS "history" is survivorship-biased — do not use it for trends.** Greenhouse and Ashby carry a real `first_published` date, so a currently-open board *looks* like it supplies history. Measured across four boards (204 postings):
+
+| year | share of open postings |
+|---|---|
+| 2026 | 84.3% |
+| 2025 | 8.3% |
+| 2024 | 2.0% |
+| ≤2023 | 5.5% |
+
+A 2024 posting still open in 2026 is an evergreen, hard-to-fill or perpetually-reposted role — not a sample of 2024 demand. Treating it as one would measure *recruiting difficulty* and label it *skill demand*. ATS postings older than `ats_history_max_age_months` (6) are therefore counted in current-state depth but **excluded from year-over-year trends**. Only Hacker News and Wayback feed the historical series.
+
+**2. Hacker News delivered exactly as hoped.** 33 unbroken monthly threads, January 2024 → September 2026, ~250 job posts each (**10,600 postings collected**), each dated to its own thread month with no smearing, company name parsed on 93–95%. This is the historical spine, and it is the reason the thin Kenyan history is survivable.
+
+**3. Remotive is dropped.** Its robots.txt contains `Disallow: /api/*` — covering the very endpoint it publishes documentation for. The robots gate caught it on the first live run. There is a genuine tension (they grant API access in docs while disallowing the path to crawlers), but this project treats robots as a hard gate with no per-source exceptions, and their terms are separately restrictive (~4 requests/day, no republishing, paid tier from $5k/mo). Arbeitnow, Jobicy and Himalayas cover the same ground.
+
+**4. African employers barely use these ATS platforms** — only 9 of 73 candidates resolved to a Greenhouse or Ashby board (Moniepoint, Decagon, One Acre Fund, Turing, Andela, Carbon, Jumia, Branch, Zola). That is a structural fact about the market, not a gap in the list, and it confirms the local signal must come from the Kenyan boards in Phase 3 rather than from ATS data. The nine that do exist remain valuable as bridge cases for the §6 calibration.
+
+**Attribution obligations.** Jobicy requires a credit line with a direct link in any published report. This is tracked in `config/sources.yaml` and surfaced by each adapter's `attribution()`.
 
 ---
 

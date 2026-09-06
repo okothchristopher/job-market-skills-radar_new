@@ -26,6 +26,21 @@ analysis:
 
   trend_window_months: 12
 
+  # ATS boards (Greenhouse, Ashby) carry a genuine `first_published` date, so a
+  # currently-open board LOOKS like it supplies history. Measured across four
+  # boards: 84% of open postings were published in 2026, 8% in 2025, 2% in 2024.
+  #
+  # That tail is survivorship-biased. A 2024 posting still open in 2026 is an
+  # evergreen, hard-to-fill or perpetually-reposted role -- not a sample of 2024
+  # demand. Treating it as one would describe recruiting difficulty and call it
+  # skill demand.
+  #
+  # So ATS postings older than this are counted in current-state depth but
+  # excluded from year-over-year trends. The unbiased historical series comes
+  # from Hacker News, where each monthly thread is a true snapshot of its month.
+  ats_history_max_age_months: 6
+  unbiased_history_sources: [hn_hiring, wayback]
+
 diffusion:
   # Every global source skews ahead of the Kenyan market (Greenhouse/Ashby are
   # US-tech-heavy, HN is startup-heavy, remote boards are modern-stack-heavy),

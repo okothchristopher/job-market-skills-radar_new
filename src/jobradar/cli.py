@@ -15,6 +15,7 @@ from rich.console import Console
 from rich.logging import RichHandler
 from rich.table import Table
 
+from . import pipeline
 from .config import Config
 from .fetch.client import build_client
 from .store.db import JobStore
@@ -147,22 +148,63 @@ def discover(
     sources: str = typer.Option(..., help="Comma-separated source names, or a group: ke, global"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
-    """Populate the crawl queue. [not yet implemented — Phase 2/3]"""
+    """Populate the crawl queue for the given sources."""
     _setup_logging(verbose)
-    console.print("[yellow]Adapters land in Phase 2 (global) and Phase 3 (Kenya).[/yellow]")
-    raise typer.Exit(code=1)
+    config = Config.load()
+    store = JobStore(config.path("raw_db"))
+    try:
+        names = pipeline.resolve_sources(sources, config)
+    except KeyError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    if not names:
+        console.print(f"[yellow]no sources matched {sources!r}[/yellow]")
+        raise typer.Exit(code=1)
+
+    queued = pipeline.discover(names, config, store)
+
+    table = Table(title="Discovered")
+    table.add_column("source")
+    table.add_column("new URLs queued", justify="right")
+    for name, count in queued.items():
+        table.add_row(name, f"{count:,}")
+    console.print(table)
+    store.close()
 
 
 @app.command()
 def fetch(
     sources: str = typer.Option(..., help="Comma-separated source names, or a group"),
-    limit: int = typer.Option(0, help="Stop after this many URLs (0 = no limit)"),
+    limit: int = typer.Option(0, help="Stop after this many URLs per source (0 = no limit)"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ) -> None:
-    """Drain the crawl queue. [not yet implemented — Phase 2/3]"""
+    """Drain the crawl queue, parsing and storing postings."""
     _setup_logging(verbose)
-    console.print("[yellow]Adapters land in Phase 2 (global) and Phase 3 (Kenya).[/yellow]")
-    raise typer.Exit(code=1)
+    config = Config.load()
+    store = JobStore(config.path("raw_db"))
+    try:
+        names = pipeline.resolve_sources(sources, config)
+    except KeyError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+
+    if not names:
+        console.print(f"[yellow]no sources matched {sources!r}[/yellow]")
+        raise typer.Exit(code=1)
+
+    results = pipeline.fetch(names, config, store, limit=limit)
+
+    table = Table(title="Fetched")
+    for column in ("source", "URLs", "jobs stored", "failed"):
+        table.add_column(column, justify="right" if column != "source" else "left")
+    for name, stats in results.items():
+        table.add_row(
+            name, f"{stats['urls']:,}", f"{stats['jobs_stored']:,}", f"{stats['failed']:,}"
+        )
+    console.print(table)
+    console.print(f"\n[dim]{store.job_count():,} postings in the store.[/dim]")
+    store.close()
 
 
 if __name__ == "__main__":
