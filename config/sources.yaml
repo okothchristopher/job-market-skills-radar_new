@@ -1,0 +1,146 @@
+# Per-source crawl policy.
+#
+# rate_per_second is the steady-state request rate for that domain. Defaults are
+# deliberately conservative — these sites serve a browsing user far faster than
+# this. Raise only with a reason.
+#
+# `enabled: false` takes a source out of a run without deleting its adapter,
+# which is the escape hatch if a site starts objecting to our traffic.
+
+defaults:
+  rate_per_second: 0.5      # one request every 2 seconds
+  cache_ttl_days: 14
+  max_retries: 3
+  timeout_seconds: 30
+
+sources:
+
+  # ---------------------------------------------------------------- Kenya
+  # All three serve full server-side HTML with JSON-LD JobPosting blocks, so no
+  # browser automation is needed. We crawl category paths and sitemaps only —
+  # never keyword-search URLs, which BrighterMonday and MyJobMag both disallow.
+
+  brightermonday:
+    enabled: true
+    group: KE
+    domain: www.brightermonday.co.ke
+    rate_per_second: 0.4
+    # robots.txt blocks every query string (?q=, ?page=, ?keywords=) but
+    # explicitly allows page=2..7 and all /listings/* detail pages.
+    max_list_page: 7
+    categories:
+      - /jobs/software-data
+      - /jobs/it-telecoms
+      - /jobs/engineering-technical
+      - /jobs/research-analysis-management
+
+  myjobmag:
+    enabled: true
+    group: KE
+    domain: www.myjobmag.co.ke
+    rate_per_second: 0.4
+    # robots.txt blocks all query strings; path pagination (/2, /3) is allowed.
+    categories:
+      - /jobs-by-field/information-technology
+      - /jobs-by-field/data-science
+      - /jobs-by-field/engineering-technical
+    sitemaps:
+      - https://www.myjobmag.co.ke/sitemap-main-jobs.xml
+      - https://www.myjobmag.co.ke/sitemap-sub-jobs.xml
+
+  fuzu:
+    enabled: true
+    group: KE
+    domain: www.fuzu.com
+    rate_per_second: 0.5
+    countries: [kenya, uganda, nigeria]   # D2: collect region, analyse Kenya first
+    sitemap_template: https://www.fuzu.com/{country}/sitemap-job-listings.xml.gz
+
+  jobwebkenya:
+    enabled: true
+    group: KE
+    domain: jobwebkenya.com
+    rate_per_second: 0.4
+
+  # --------------------------------------------------------------- Global
+  # First-party employer APIs are the backbone: one request returns hundreds of
+  # fully-described postings, so the global side scales without rate-limit risk.
+
+  greenhouse:
+    enabled: true
+    group: GLOBAL
+    domain: boards-api.greenhouse.io
+    rate_per_second: 2.0        # documented public API, one request per company
+    endpoint: https://boards-api.greenhouse.io/v1/boards/{board}/jobs?content=true
+    companies_file: config/companies.yaml
+
+  ashby:
+    enabled: true
+    group: GLOBAL
+    domain: api.ashbyhq.com
+    rate_per_second: 2.0
+    endpoint: https://api.ashbyhq.com/posting-api/job-board/{board}
+    companies_file: config/companies.yaml
+
+  hn_hiring:
+    enabled: true
+    group: GLOBAL
+    domain: hn.algolia.com
+    rate_per_second: 2.0
+    # The historical spine: monthly "Ask HN: Who is hiring?" threads, complete
+    # from 2024 to present. The only free unbroken longitudinal global corpus.
+    since: 2024-01
+    search_endpoint: https://hn.algolia.com/api/v1/search_by_date
+    items_endpoint: https://hn.algolia.com/api/v1/items/{id}
+
+  remotive:
+    enabled: true
+    group: GLOBAL
+    domain: remotive.com
+    rate_per_second: 1.0
+    endpoint: https://remotive.com/api/remote-jobs
+
+  arbeitnow:
+    enabled: true
+    group: GLOBAL
+    domain: www.arbeitnow.com
+    rate_per_second: 1.0
+    endpoint: https://www.arbeitnow.com/api/job-board-api
+
+  jobicy:
+    enabled: true
+    group: GLOBAL
+    domain: jobicy.com
+    rate_per_second: 1.0
+    endpoint: https://jobicy.com/api/v2/remote-jobs
+
+  himalayas:
+    enabled: true
+    group: GLOBAL
+    domain: himalayas.app
+    rate_per_second: 1.0
+    endpoint: https://himalayas.app/jobs/api
+
+  # ------------------------------------------------------------ Historical
+  # Wayback replay. Verified to retain the full JSON-LD JobPosting, including a
+  # datePosted that is often older than the archive date — which is how 2024
+  # postings surface from 2025 crawls.
+  #
+  # Coverage is lopsided: ~19,800 archived BrighterMonday listings from 2025
+  # against ~7 from 2024. 2025 is the realistic target; 2024 is a bonus tail.
+
+  wayback:
+    enabled: true
+    group: null                 # inherits the group of the source it replays
+    domain: web.archive.org
+    rate_per_second: 1.0        # archive.org is stricter than the live sites
+    cdx_endpoint: http://web.archive.org/cdx/search/cdx
+    replay_template: "http://web.archive.org/web/{timestamp}id_/{url}"
+    years: [2025]
+    replays:
+      - brightermonday
+      - myjobmag
+
+# Excluded by design: LinkedIn, Indeed, Glassdoor, ZipRecruiter.
+# Anti-scraping terms, active blocking and CAPTCHAs. The previous project already
+# confirmed non-200 responses from Glassdoor and ZipRecruiter.

@@ -1,0 +1,44 @@
+# Pipeline-wide settings.
+
+paths:
+  raw_db: data/raw/jobs.sqlite
+  http_cache: data/cache/http_cache.sqlite
+  processed: data/processed
+  taxonomy: taxonomy/skills.csv
+  reports: reports
+
+crawler:
+  user_agent: >-
+    ZinduaJobRadar/0.1 (research crawler for curriculum planning;
+    +https://zinduaschool.com; contact: data@zinduaschool.com)
+  respect_robots: true          # hard gate; never disabled against a live host
+  parallel_domains: 4           # parallel across domains, sequential within one
+
+analysis:
+  # Rule 2 from the plan: a (skill, year, segment) cell built on fewer postings
+  # than this is greyed out and excluded from trend claims. This is what stops
+  # the sparse 2024 sample producing a confident-looking lie.
+  min_cell_size: 100
+
+  # Trends are always reported as share of postings, never raw counts, because
+  # corpus size differs wildly between years and segments.
+  metric: pct_share
+
+  trend_window_months: 12
+
+diffusion:
+  # Every global source skews ahead of the Kenyan market (Greenhouse/Ashby are
+  # US-tech-heavy, HN is startup-heavy, remote boards are modern-stack-heavy),
+  # which inflates the apparent gap for essentially every skill. We estimate that
+  # structural bias from skills known to be fully diffused, then subtract it.
+  # Without this the watchlist would just rank "how American is this technology".
+  calibration_skills: [SQL, Git, Java, Excel, HTML, CSS, Linux]
+
+  teach_ahead_min_global_share: 0.05    # must be materially present globally
+  teach_ahead_max_kenya_share: 0.02     # and near-absent locally
+  teach_ahead_min_global_trend: 0.01    # and rising, not merely large
+
+  # Left null until ~12 months of monthly collection exist on both sides. A lag
+  # estimated from two thin years would be invented, not measured.
+  enable_lag_estimate: false
+  min_months_for_lag: 12
