@@ -4,6 +4,10 @@ Measures which skills, languages and frameworks employers actually ask for — g
 
 See [PLAN.md](PLAN.md) for the full design, the evidence behind each source choice, and the honest limits of the data.
 
+![Nairobi Skills Radar dashboard, styled in Zindua's brand colors, showing job-posting KPIs and a Kenya-vs-Global skill demand chart](reports/dashboard_preview.png)
+
+*Live dashboard: [reports/skills_radar_dashboard.html](reports/skills_radar_dashboard.html)*
+
 ## The thesis
 
 Skills that rise in global demand trickle down to the Kenyan market after some lag. If that lag is real and measurable, Zindua can teach ahead of local demand instead of reacting to it.
