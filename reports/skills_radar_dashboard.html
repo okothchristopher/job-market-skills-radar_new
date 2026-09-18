@@ -337,6 +337,144 @@ h2 {
 .tt-name { color: var(--text-2); }
 .tt-val { font-family: var(--font-mono); font-weight: 500; color: var(--text); margin-left: auto; }
 
+/* Role Cards */
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+.role-card {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 22px;
+}
+.role-head {
+  margin-bottom: 4px;
+}
+.role-title {
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+.role-programme {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.role-meta {
+  font-size: 12px;
+  color: var(--text-3);
+  margin: 8px 0 14px;
+}
+.role-bars { display: flex; flex-direction: column; gap: 5px; }
+.role-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.role-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-2);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.role-track { display: flex; flex-direction: column; gap: 2px; }
+.role-track .hbar-bar { height: 8px; }
+.role-track .hbar-val { font-size: 10px; }
+
+/* Programme Deep-Dive Accordion */
+.track-list { display: flex; flex-direction: column; gap: 12px; }
+.track-card {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.track-card > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 20px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  align-items: baseline;
+}
+.track-card > summary::-webkit-details-marker { display: none; }
+.track-card > summary:hover { background: var(--surface-sunk); }
+.track-card-title {
+  font-family: var(--font-head);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+.track-card-meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-3);
+}
+.track-card-meta .v-ke { color: var(--kenya); }
+.track-card-meta .v-gl { color: var(--global); }
+.track-chev { color: var(--text-3); font-size: 12px; transition: transform 0.15s ease; }
+.track-card[open] .track-chev { transform: rotate(90deg); }
+.track-card-body {
+  padding: 4px 20px 20px;
+  border-top: 1px solid var(--line-soft);
+}
+.action-block { margin-top: 16px; }
+.action-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.action-why { font-size: 12px; color: var(--text-3); }
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tag.add { color: var(--add); }
+.tag.expand { color: var(--expand); }
+.tag.hold { color: var(--hold); }
+.tag.watch { color: var(--watch); }
+.tag.retire { color: var(--retire); }
+.action-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.action-table th {
+  text-align: right;
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line);
+}
+.action-table th:first-child { text-align: left; }
+.action-table td { padding: 5px 8px; border-bottom: 1px solid var(--line-soft); text-align: right; }
+.action-table td:first-child { text-align: left; font-weight: 500; color: var(--text); }
+.action-table tr:last-child td { border-bottom: 0; }
+.also-tracked {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.6;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+}
+.also-tracked strong { color: var(--text-2); font-weight: 500; }
+
 /* Watchlist Cards */
 .watch-grid {
   display: grid;
@@ -448,6 +586,41 @@ h2 {
 }
 .kenya-table tr:nth-child(even) td { background: var(--surface-sunk); }
 
+/* Role Demand Ranking */
+.rank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.rank-list { display: flex; flex-direction: column; gap: 2px; }
+.rank-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 7px;
+}
+.rank-row:nth-child(odd) { background: var(--surface-sunk); }
+.rank-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+.rank-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.rank-meta { text-align: right; }
+.rank-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: block;
+}
+.rank-pct { font-size: 11px; color: var(--text-3); }
+.rank-list.kenya .rank-count { color: var(--kenya); }
+.rank-list.global .rank-count { color: var(--global); }
+
 /* Co-occurrence */
 .cooc-grid {
   display: grid;
@@ -462,6 +635,12 @@ h2 {
   .kpi-value { font-size: 26px; }
   header { padding: 32px 0 28px; }
   .chart-card { padding: 20px 16px; }
+  .role-row { grid-template-columns: 76px 1fr; }
+  .rank-grid { grid-template-columns: 1fr; }
+  .track-card > summary { grid-template-columns: 1fr auto; row-gap: 6px; }
+  .track-card-meta { grid-column: 1 / -1; }
+  .action-table { font-size: 12px; }
+  .action-table th, .action-table td { padding: 4px 4px; }
 }
 
 /* Footer */
@@ -565,6 +744,33 @@ footer a { color: var(--accent); text-decoration: none; }
 </div>
 </section>
 
+<!-- Role Demand Ranking -->
+<section>
+<h2>Which Roles Are Most in Demand</h2>
+<p class="section-sub">Estimated postings = programme coverage % &times; technical postings in that market (1,827 Kenya &middot; 29,529 global). An estimate from the same corrected share used throughout, not a raw headcount &mdash; but the divergence in ranking is the finding: Kenya's most in-demand role is not Global's.</p>
+<div class="chart-card">
+  <div class="rank-grid">
+    <div>
+      <div class="chart-title">Kenya</div>
+      <div class="chart-subtitle">Ranked by estimated technical postings</div>
+      <div class="rank-list kenya" id="rank-kenya"></div>
+    </div>
+    <div>
+      <div class="chart-title">Global</div>
+      <div class="chart-subtitle">Ranked by estimated technical postings</div>
+      <div class="rank-list global" id="rank-global"></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Role & Skill Demand -->
+<section>
+<h2>Skill Demand by Role</h2>
+<p class="section-sub">The taxonomy has no per-job-title skill data, so each Zindua programme stands in as a role proxy &mdash; every skill in a programme is already scoped to the role it trains for. Bars show global (top) and Kenya (bottom) share of technical postings; ranked by global demand.</p>
+<div class="role-grid" id="role-grid"></div>
+</section>
+
 <!-- Diffusion Status -->
 <section>
 <h2>Skill Diffusion Status</h2>
@@ -577,6 +783,13 @@ footer a { color: var(--accent); text-decoration: none; }
 <h2>Teach-Ahead Watchlist</h2>
 <p class="section-sub">Skills with strong global demand but minimal Kenya presence&mdash;candidates for proactive curriculum addition.</p>
 <div class="watch-grid" id="watchlist"></div>
+</section>
+
+<!-- Programme Deep-Dive -->
+<section>
+<h2>Programme Deep-Dive: What to Add, Hold, Watch and Retire</h2>
+<p class="section-sub">Every one of the 146 tracked skills, classified against both markets, for all 12 Zindua programmes. <span class="tag add">Add</span> = large, growing global gap &mdash; a strategic bet, not a scheduled arrival. <span class="tag expand">Expand</span> = rising in both markets, the safest place to invest teaching time. <span class="tag hold">Hold</span> = core demand already present locally. <span class="tag watch">Watch</span> = big globally, flat and absent locally &mdash; don't teach on global signal alone. <span class="tag retire">Retire</span> = falling in both markets.</p>
+<div class="track-list" id="track-list"></div>
 </section>
 
 <!-- Kenya Distinctives -->
@@ -721,6 +934,120 @@ const coocKenya = [
   {a:"SQL", b:"SQL Server", jobs:31, lift:10.93},
   {a:"AWS", b:"Azure", jobs:28, lift:10.36},
   {a:"SQL", b:"Statistics", jobs:28, lift:1.41},
+];
+
+// ── Role & Skill Demand ───────────────────────────────────────────────────
+// No per-job-title skill join exists in the committed dataset (job_skills lives
+// only in the gitignored raw SQLite store). Each Zindua programme is used as the
+// role proxy instead, since every skill is already scoped to the role its
+// programme trains for. Top skills per role, ranked by global share.
+const roleSkills = [
+  {role:"Software Engineer", programme:"Software Engineering Core", skillCount:43, global:55.91, kenya:24.36,
+    skills:[{skill:"Python",global:27.89,kenya:7.01},{skill:"System Design",global:13.01,kenya:1.26},{skill:"Java",global:6.77,kenya:3.34},{skill:"Go",global:6.82,kenya:0.66},{skill:"C++",global:5.87,kenya:0.82},{skill:"JavaScript",global:5.75,kenya:2.52},{skill:"Rust",global:5.38,kenya:0.49},{skill:"GitHub",global:5.12,kenya:1.15}]},
+  {role:"Data / BI Analyst", programme:"Data Analytics", skillCount:10, global:23.49, kenya:66.12,
+    skills:[{skill:"SQL",global:11.97,kenya:7.88},{skill:"A/B Testing",global:7.19,kenya:0.99},{skill:"Excel",global:3.89,kenya:46.03},{skill:"Statistics",global:3.56,kenya:13.79},{skill:"Tableau",global:2.47,kenya:1.48},{skill:"Looker",global:1.87,kenya:0.27},{skill:"Oracle",global:1.44,kenya:4.60},{skill:"Power BI",global:0.91,kenya:3.78}]},
+  {role:"AI / ML Engineer", programme:"AI Engineering", skillCount:13, global:39.35, kenya:3.67,
+    skills:[{skill:"AI Agents",global:21.80,kenya:0.55},{skill:"LLM",global:14.84,kenya:2.41},{skill:"OpenAI API",global:9.98,kenya:0.93},{skill:"Claude",global:8.36,kenya:0.55},{skill:"RAG",global:2.93,kenya:0.49},{skill:"Fine-tuning",global:2.19,kenya:0.33},{skill:"MLOps",global:1.92,kenya:0.33},{skill:"Prompt Engineering",global:1.69,kenya:0.99}]},
+  {role:"Data Engineer", programme:"Data Engineering", skillCount:16, global:36.04, kenya:7.94,
+    skills:[{skill:"AWS",global:18.74,kenya:3.56},{skill:"Google Cloud",global:11.41,kenya:1.75},{skill:"PostgreSQL",global:9.04,kenya:2.41},{skill:"Databricks",global:4.79,kenya:0.33},{skill:"Snowflake",global:4.72,kenya:0.38},{skill:"Apache Spark",global:4.16,kenya:0.60},{skill:"Data Warehousing",global:3.37,kenya:1.59},{skill:"Kafka",global:3.19,kenya:0.44}]},
+  {role:"DevOps / Platform Engineer", programme:"DevOps Engineering", skillCount:14, global:29.42, kenya:8.32,
+    skills:[{skill:"Kubernetes",global:12.92,kenya:1.48},{skill:"Azure",global:9.24,kenya:4.16},{skill:"CI/CD",global:8.64,kenya:2.96},{skill:"Linux",global:6.20,kenya:2.41},{skill:"Terraform",global:6.04,kenya:0.82},{skill:"Docker",global:5.56,kenya:1.81},{skill:"Grafana",global:2.57,kenya:0.38},{skill:"Prometheus",global:1.80,kenya:0.22}]},
+  {role:"Frontend Engineer", programme:"Frontend Development", skillCount:15, global:25.44, kenya:5.75,
+    skills:[{skill:"TypeScript",global:13.65,kenya:1.04},{skill:"React",global:13.26,kenya:1.26},{skill:"Accessibility",global:3.42,kenya:2.41},{skill:"Next.js",global:2.92,kenya:0.16},{skill:"Figma",global:2.46,kenya:0.11},{skill:"Vue",global:1.49,kenya:0.22},{skill:"HTML",global:1.48,kenya:1.26},{skill:"CSS",global:1.47,kenya:1.09}]},
+  {role:"Data Scientist", programme:"Data Science Core", skillCount:14, global:24.00, kenya:4.38,
+    skills:[{skill:"Machine Learning",global:22.35,kenya:3.50},{skill:"PyTorch",global:2.60,kenya:0.22},{skill:"Deep Learning",global:1.37,kenya:0.27},{skill:"Computer Vision",global:1.26,kenya:0.11},{skill:"NLP",global:1.23,kenya:0.49},{skill:"TensorFlow",global:0.98,kenya:0.22},{skill:"Pandas",global:0.78,kenya:0.44},{skill:"scikit-learn",global:0.45,kenya:0.27}]},
+  {role:"Product Manager", programme:"Product Management", skillCount:4, global:19.26, kenya:18.94,
+    skills:[{skill:"Product Management",global:10.30,kenya:2.13},{skill:"Stakeholder Management",global:4.46,kenya:11.06},{skill:"Agile",global:4.40,kenya:6.68},{skill:"Jira",global:2.31,kenya:1.42}]},
+  {role:"Security Engineer", programme:"Cybersecurity Core", skillCount:9, global:9.18, kenya:3.39,
+    skills:[{skill:"Incident Response",global:4.57,kenya:1.53},{skill:"Cryptography",global:1.90,kenya:1.15},{skill:"SIEM",global:1.56,kenya:0.27},{skill:"ISO 27001",global:1.36,kenya:0.55},{skill:"Network Security",global:1.02,kenya:1.04},{skill:"Vulnerability Assessment",global:0.95,kenya:0.44},{skill:"Penetration Testing",global:0.70,kenya:0.71},{skill:"OWASP",global:0.39,kenya:0.22}]},
+  {role:"Analytics Communicator", programme:"Data Storytelling", skillCount:3, global:1.48, kenya:2.57,
+    skills:[{skill:"Data Visualization",global:1.33,kenya:2.52},{skill:"Data Storytelling",global:0.16,kenya:0.16},{skill:"Plotly",global:0.08,kenya:0.16}]},
+  {role:"Automation / AI Ops Specialist", programme:"AI Workflow Automation", skillCount:3, global:1.28, kenya:0.44,
+    skills:[{skill:"Zapier",global:0.78,kenya:0.33},{skill:"n8n",global:0.74,kenya:0.22},{skill:"Make.com",global:0.02,kenya:0.22}]},
+];
+
+// ── Programme Deep-Dive ────────────────────────────────────────────────────
+// Straight from reports/curriculum_briefs.md (generated by the pipeline).
+// "alsoTracked" lists every remaining skill in the programme that sits below
+// the actionable threshold (low_demand / insufficient_data) — shown for full
+// transparency since curriculum_briefs.md omits them.
+const trackDeepDive = [
+  {track:"Data Analytics", kenya:66.12, global:23.49, skillCount:10,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["SQL",11.97,7.88,"+0.3","+7.1"],["SQL Server",0.49,1.97,"-0.0","+2.8"],["Power BI",0.91,3.78,"-0.1","+1.8"],["Oracle",1.44,4.60,"+0.1","-0.5"],["Statistics",3.56,13.79,"+0.4","-2.0"],["Excel",3.89,46.03,"-0.3","-8.0"]]},
+      {tag:"watch", label:"Watch", why:"Big globally, flat, still absent locally. Don't teach on global signal alone.",
+        rows:[["A/B Testing",7.19,0.99,"-0.1","+1.4"]]},
+    ], alsoTracked:["Tableau (2.5% global / 1.5% Kenya)","Looker (1.9% / 0.3%)","Google Data Studio (0.03% / 0.2%)"]},
+  {track:"Software Engineering Core", kenya:24.36, global:55.91, skillCount:43,
+    blocks:[
+      {tag:"add", label:"Add", why:"Large and growing global gap. A strategic bet, not a scheduled arrival.",
+        rows:[["C++",5.87,0.82,"+1.0","+0.2"],["GitHub",5.12,1.15,"+2.1","+0.1"]]},
+      {tag:"expand", label:"Expand", why:"Rising in both markets — the safest place to invest teaching time.",
+        rows:[["Python",27.89,7.01,"+3.7","+3.1"]]},
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Java",6.77,3.34,"+0.6","+2.0"],["JavaScript",5.75,2.52,"-0.4","+0.2"],["Git",2.49,2.24,"+0.6","-0.6"],["C#",2.30,2.68,"+0.2","+2.2"],["Payment Integration",0.52,2.85,"+0.2","-2.1"],["M-Pesa",0.00,4.32,"n/a","-1.5"]]},
+      {tag:"watch", label:"Watch", why:"Big globally, flat, still absent locally. Don't teach on global signal alone.",
+        rows:[["System Design",13.01,1.26,"+0.2","+0.4"],["Go",6.82,0.66,"-0.6","+0.1"],["Rust",5.38,0.49,"+1.0","+0.1"]]},
+      {tag:"retire", label:"Retire", why:"Falling in both markets. Candidate for removal.",
+        rows:[["Node.js",6.22,1.04,"-1.6","+0.5"]]},
+    ], alsoTracked:["Ruby","MongoDB","Rails","GraphQL","Kotlin","iOS","React Native","MySQL","REST API","Microservices","API Integration","Android","Redis","C","Swift","gRPC","FastAPI","Testing","Django","Flask",".NET","Firebase","Spring Boot","Supabase","Selenium","Laravel","PHP","USSD","Express","Flutter"]},
+  {track:"Product Management", kenya:18.94, global:19.26, skillCount:4,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Product Management",10.30,2.13,"-0.3","+1.5"],["Agile",4.40,6.68,"+0.5","-1.3"],["Stakeholder Management",4.46,11.06,"+0.2","+7.8"]]},
+    ], alsoTracked:["Jira (2.3% global / 1.4% Kenya)"]},
+  {track:"DevOps Engineering", kenya:8.32, global:29.42, skillCount:14,
+    blocks:[
+      {tag:"expand", label:"Expand", why:"Rising in both markets — the safest place to invest teaching time.",
+        rows:[["CI/CD",8.64,2.96,"+1.6","-0.2"]]},
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Azure",9.24,4.16,"+0.8","+1.6"],["Linux",6.20,2.41,"+0.9","+0.5"]]},
+      {tag:"watch", label:"Watch", why:"Big globally, flat, still absent locally. Don't teach on global signal alone.",
+        rows:[["Kubernetes",12.92,1.48,"-0.3","+1.2"],["Terraform",6.04,0.82,"+0.4","+1.0"],["Docker",5.56,1.81,"+0.5","+1.4"]]},
+    ], alsoTracked:["Grafana","Prometheus","GitLab","Ansible","Jenkins","GitHub Actions","Bash","Nginx"]},
+  {track:"Data Engineering", kenya:7.94, global:36.04, skillCount:16,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["AWS",18.74,3.56,"+0.1","+3.2"],["PostgreSQL",9.04,2.41,"+0.5","+2.2"]]},
+      {tag:"retire", label:"Retire", why:"Falling in both markets. Candidate for removal.",
+        rows:[["Google Cloud",11.41,1.75,"-1.5","+0.5"]]},
+    ], alsoTracked:["Databricks","Snowflake","Apache Spark","Kafka","ETL","Data Warehousing","dbt","Apache Airflow","BigQuery","Scala","Elasticsearch","Redshift","Hadoop"]},
+  {track:"Frontend Development", kenya:5.75, global:25.44, skillCount:15,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Accessibility",3.42,2.41,"-0.4","-0.4"]]},
+      {tag:"retire", label:"Retire", why:"Falling in both markets. Candidate for removal.",
+        rows:[["TypeScript",13.65,1.04,"-2.5","+1.0"],["React",13.26,1.26,"-2.5","-0.5"]]},
+    ], alsoTracked:["Next.js","Figma","Vue","Tailwind CSS","CSS","HTML","Angular","Responsive Design","WordPress","jQuery","Svelte","Bootstrap"]},
+  {track:"Data Science Core", kenya:4.38, global:24.00, skillCount:14,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Machine Learning",22.35,3.50,"+0.1","+1.1"],["R",0.18,0.82,"+0.0","+0.0"]]},
+    ], alsoTracked:["PyTorch","Computer Vision","Deep Learning","NLP","TensorFlow","Pandas","NumPy","scikit-learn","XGBoost","Keras","Matplotlib","Seaborn"]},
+  {track:"AI Engineering", kenya:3.67, global:39.35, skillCount:13,
+    blocks:[
+      {tag:"add", label:"Add", why:"Large and growing global gap. A strategic bet, not a scheduled arrival.",
+        rows:[["AI Agents",21.80,0.55,"+5.0","+0.7"],["Claude",8.36,0.55,"+5.1","+0.2"]]},
+      {tag:"expand", label:"Expand", why:"Rising in both markets — the safest place to invest teaching time.",
+        rows:[["LLM",14.84,2.41,"+2.8","-0.2"]]},
+      {tag:"watch", label:"Watch", why:"Big globally, flat, still absent locally. Don't teach on global signal alone.",
+        rows:[["OpenAI API",9.98,0.93,"+0.7","+0.8"]]},
+    ], alsoTracked:["RAG","Fine-tuning","MLOps","Prompt Engineering","LangChain","LangGraph","Vector Database","Hugging Face","LlamaIndex"]},
+  {track:"Cybersecurity Core", kenya:3.39, global:9.18, skillCount:9,
+    blocks:[], alsoTracked:["Incident Response (4.6% global / 1.5% Kenya)","Cryptography (1.9% / 1.2%)","SIEM (1.6% / 0.3%)","ISO 27001 (1.4% / 0.5%)","Network Security (1.0% / 1.0%)","Vulnerability Assessment (1.0% / 0.4%)","Penetration Testing (0.7% / 0.7%)","OWASP (0.4% / 0.2%)","Kali Linux (0.1% / 0.0%)"],
+    note:"No single skill clears the actionable threshold — demand is real (9.2% of global postings) but spread thin across nine named skills, none individually above 5%."},
+  {track:"Data Storytelling", kenya:2.57, global:1.48, skillCount:3,
+    blocks:[
+      {tag:"hold", label:"Hold", why:"Core demand, already present locally. Keep as is.",
+        rows:[["Data Visualization",1.33,2.52,"-0.2","+0.6"]]},
+    ], alsoTracked:["Plotly (0.1% global / 0.2% Kenya)","Data Storytelling (0.2% / 0.2%)"]},
+  {track:"Data Structures & Algorithms", kenya:1.86, global:4.49, skillCount:2,
+    blocks:[], alsoTracked:["Algorithms (4.0% global / 1.4% Kenya)","Data Structures (1.6% / 0.7%)"],
+    note:"Foundational interview-readiness skills, not a curriculum action bucket in the diffusion model."},
+  {track:"AI Workflow Automation", kenya:0.44, global:1.28, skillCount:3,
+    blocks:[], alsoTracked:["Zapier (0.8% global / 0.3% Kenya)","n8n (0.7% / 0.2%)","Make.com (0.02% / 0.2%)"],
+    note:"All three tracked skills are below the low-demand threshold in both markets — too early to call."},
 ];
 
 // ── Helpers ─────────────────────────────────────────────────────────────
@@ -930,12 +1257,105 @@ function renderCooc(id, data) {
     </tr>`).join('')}</tbody>`;
 }
 
+// ── Role Demand Ranking ───────────────────────────────────────────────────
+const KE_TECH_JOBS = 1827;
+const GLOBAL_TECH_JOBS = 29529;
+function renderRoleRanking() {
+  const withCounts = roleSkills.map(r => ({
+    role: r.role,
+    kenyaCount: Math.round(r.kenya / 100 * KE_TECH_JOBS),
+    globalCount: Math.round(r.global / 100 * GLOBAL_TECH_JOBS),
+    kenya: r.kenya,
+    global: r.global,
+  }));
+
+  const byKenya = [...withCounts].sort((a, b) => b.kenyaCount - a.kenyaCount);
+  const byGlobal = [...withCounts].sort((a, b) => b.globalCount - a.globalCount);
+
+  document.getElementById('rank-kenya').innerHTML = byKenya.map((r, i) => `<div class="rank-row">
+    <div class="rank-num">${i + 1}</div>
+    <div class="rank-name">${r.role}</div>
+    <div class="rank-meta"><span class="rank-count">${fmtK(r.kenyaCount)}</span><span class="rank-pct">${pct(r.kenya)}</span></div>
+  </div>`).join('');
+
+  document.getElementById('rank-global').innerHTML = byGlobal.map((r, i) => `<div class="rank-row">
+    <div class="rank-num">${i + 1}</div>
+    <div class="rank-name">${r.role}</div>
+    <div class="rank-meta"><span class="rank-count">${fmtK(r.globalCount)}</span><span class="rank-pct">${pct(r.global)}</span></div>
+  </div>`).join('');
+}
+
+// ── Role & Skill Demand Cards ─────────────────────────────────────────────
+function renderRoles() {
+  const grid = document.getElementById('role-grid');
+  grid.innerHTML = roleSkills.map(r => {
+    const maxVal = Math.max(...r.skills.map(s => Math.max(s.global, s.kenya)));
+    const rows = r.skills.map(s => {
+      const gw = (s.global / maxVal * 100);
+      const kw = (s.kenya / maxVal * 100);
+      return `<div class="role-row" onmousemove="showTooltip(event, '<div class=tt-title>${s.skill}</div><div class=tt-row><div class=tt-key style=background:var(--global)></div><span class=tt-name>Global</span><span class=tt-val>${pct(s.global)}</span></div><div class=tt-row><div class=tt-key style=background:var(--kenya)></div><span class=tt-name>Kenya</span><span class=tt-val>${pct(s.kenya)}</span></div>')" onmouseleave="hideTooltip()">
+        <div class="role-label">${s.skill}</div>
+        <div class="role-track">
+          <div class="hbar-bar" style="width:${gw}%;background:var(--global)"></div>
+          <div class="hbar-bar" style="width:${kw}%;background:var(--kenya)"></div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="role-card">
+      <div class="role-head">
+        <div class="role-title">${r.role}</div>
+        <div class="role-programme">${r.programme}</div>
+      </div>
+      <div class="role-meta">${r.skillCount} tracked skills &middot; ${pct(r.global)} global coverage &middot; ${pct(r.kenya)} Kenya coverage</div>
+      <div class="role-bars">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Programme Deep-Dive Accordion ─────────────────────────────────────────
+function renderTrackDeepDive() {
+  const container = document.getElementById('track-list');
+  container.innerHTML = trackDeepDive.map((t, i) => {
+    const blocks = t.blocks.map(b => `<div class="action-block">
+      <div class="action-head">
+        <span class="tag ${b.tag}">${b.label}</span>
+        <span class="action-why">${b.why}</span>
+      </div>
+      <table class="action-table">
+        <thead><tr><th>Skill</th><th>Global</th><th>Kenya</th><th>Global 12m</th><th>Kenya 12m</th></tr></thead>
+        <tbody>${b.rows.map(row => `<tr>
+          <td>${row[0]}</td><td>${pct(row[1])}</td><td>${pct(row[2])}</td><td>${row[3]}</td><td>${row[4]}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('');
+    const note = t.note ? `<div class="also-tracked">${t.note}</div>` : '';
+    const alsoTracked = t.alsoTracked && t.alsoTracked.length
+      ? `<div class="also-tracked"><strong>Also tracked</strong> (below the actionable threshold): ${t.alsoTracked.join(', ')}</div>`
+      : '';
+    return `<details class="track-card"${i === 0 ? ' open' : ''}>
+      <summary>
+        <span class="track-card-title">${t.track}</span>
+        <span class="track-card-meta"><span class="v-ke">Kenya ${pct(t.kenya)}</span> &middot; <span class="v-gl">Global ${pct(t.global)}</span> &middot; ${t.skillCount} skills</span>
+        <span class="track-chev">&#9656;</span>
+      </summary>
+      <div class="track-card-body">
+        ${blocks}
+        ${note}
+        ${alsoTracked}
+      </div>
+    </details>`;
+  }).join('');
+}
+
 // ── Render All ──────────────────────────────────────────────────────────
 renderTopSkills();
 renderAITrend();
 renderProgrammes();
+renderRoleRanking();
+renderRoles();
 renderStatus();
 renderWatchlist();
+renderTrackDeepDive();
 renderKenyaTable();
 renderCooc('cooc-global', coocGlobal);
 renderCooc('cooc-kenya', coocKenya);
