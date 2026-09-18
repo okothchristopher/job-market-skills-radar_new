@@ -586,6 +586,41 @@ h2 {
 }
 .kenya-table tr:nth-child(even) td { background: var(--surface-sunk); }
 
+/* Role Demand Ranking */
+.rank-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.rank-list { display: flex; flex-direction: column; gap: 2px; }
+.rank-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 7px;
+}
+.rank-row:nth-child(odd) { background: var(--surface-sunk); }
+.rank-num {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+}
+.rank-name { font-size: 14px; font-weight: 500; color: var(--text); }
+.rank-meta { text-align: right; }
+.rank-count {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  display: block;
+}
+.rank-pct { font-size: 11px; color: var(--text-3); }
+.rank-list.kenya .rank-count { color: var(--kenya); }
+.rank-list.global .rank-count { color: var(--global); }
+
 /* Co-occurrence */
 .cooc-grid {
   display: grid;
@@ -601,6 +636,7 @@ h2 {
   header { padding: 32px 0 28px; }
   .chart-card { padding: 20px 16px; }
   .role-row { grid-template-columns: 76px 1fr; }
+  .rank-grid { grid-template-columns: 1fr; }
   .track-card > summary { grid-template-columns: 1fr auto; row-gap: 6px; }
   .track-card-meta { grid-column: 1 / -1; }
   .action-table { font-size: 12px; }
@@ -705,6 +741,26 @@ footer a { color: var(--accent); text-decoration: none; }
     <div class="legend-item"><div class="legend-swatch" style="background:var(--kenya)"></div>Kenya (1,827 tech jobs)</div>
   </div>
   <div id="programme-chart"></div>
+</div>
+</section>
+
+<!-- Role Demand Ranking -->
+<section>
+<h2>Which Roles Are Most in Demand</h2>
+<p class="section-sub">Estimated postings = programme coverage % &times; technical postings in that market (1,827 Kenya &middot; 29,529 global). An estimate from the same corrected share used throughout, not a raw headcount &mdash; but the divergence in ranking is the finding: Kenya's most in-demand role is not Global's.</p>
+<div class="chart-card">
+  <div class="rank-grid">
+    <div>
+      <div class="chart-title">Kenya</div>
+      <div class="chart-subtitle">Ranked by estimated technical postings</div>
+      <div class="rank-list kenya" id="rank-kenya"></div>
+    </div>
+    <div>
+      <div class="chart-title">Global</div>
+      <div class="chart-subtitle">Ranked by estimated technical postings</div>
+      <div class="rank-list global" id="rank-global"></div>
+    </div>
+  </div>
 </div>
 </section>
 
@@ -1201,6 +1257,34 @@ function renderCooc(id, data) {
     </tr>`).join('')}</tbody>`;
 }
 
+// ── Role Demand Ranking ───────────────────────────────────────────────────
+const KE_TECH_JOBS = 1827;
+const GLOBAL_TECH_JOBS = 29529;
+function renderRoleRanking() {
+  const withCounts = roleSkills.map(r => ({
+    role: r.role,
+    kenyaCount: Math.round(r.kenya / 100 * KE_TECH_JOBS),
+    globalCount: Math.round(r.global / 100 * GLOBAL_TECH_JOBS),
+    kenya: r.kenya,
+    global: r.global,
+  }));
+
+  const byKenya = [...withCounts].sort((a, b) => b.kenyaCount - a.kenyaCount);
+  const byGlobal = [...withCounts].sort((a, b) => b.globalCount - a.globalCount);
+
+  document.getElementById('rank-kenya').innerHTML = byKenya.map((r, i) => `<div class="rank-row">
+    <div class="rank-num">${i + 1}</div>
+    <div class="rank-name">${r.role}</div>
+    <div class="rank-meta"><span class="rank-count">${fmtK(r.kenyaCount)}</span><span class="rank-pct">${pct(r.kenya)}</span></div>
+  </div>`).join('');
+
+  document.getElementById('rank-global').innerHTML = byGlobal.map((r, i) => `<div class="rank-row">
+    <div class="rank-num">${i + 1}</div>
+    <div class="rank-name">${r.role}</div>
+    <div class="rank-meta"><span class="rank-count">${fmtK(r.globalCount)}</span><span class="rank-pct">${pct(r.global)}</span></div>
+  </div>`).join('');
+}
+
 // ── Role & Skill Demand Cards ─────────────────────────────────────────────
 function renderRoles() {
   const grid = document.getElementById('role-grid');
@@ -1267,6 +1351,7 @@ function renderTrackDeepDive() {
 renderTopSkills();
 renderAITrend();
 renderProgrammes();
+renderRoleRanking();
 renderRoles();
 renderStatus();
 renderWatchlist();
