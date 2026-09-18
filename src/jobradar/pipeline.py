@@ -272,8 +272,6 @@ def aggregate(config: Config, out_dir: str | None = None) -> tuple[dict, dict]:
         "skill_diffusion": skill_diffusion,
         "watchlist": dif.watchlist(skill_diffusion, limit=40),
         "track_summary": dif.track_summary(skill_diffusion),
-        "cooccurrence_global": fr.build_cooccurrence(job_skills, "GLOBAL"),
-        "cooccurrence_kenya": fr.build_cooccurrence(job_skills, "KE", min_pairs=2),
     }
     written = fr.export(frames, out_dir or config.path("processed"))
     return written, diagnostics

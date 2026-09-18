@@ -20,7 +20,6 @@ The output is not "a scraper". It is a recurring evidence base that answers ques
 | Is React still the safe frontend bet in Nairobi, or is Next.js overtaking it? | `skill_year`, Kenya, frontend category |
 | Are we right to make LangChain/LangGraph the AI Engineering spine? | LangChain vs. raw APIs vs. n8n, global-leading vs. Kenya-current |
 | Should Data Analytics teach Power BI or Tableau first? | Head-to-head mention share, Kenya |
-| What do Kenyan employers pair with Python? | Co-occurrence frame |
 | Is Cybersecurity Core sized right? | Postings-per-track volume over time |
 
 Every skill row carries a `zindua_track` tag, so counts roll up onto your actual programmes — Software Engineering Core, Data Science Core, Cybersecurity Core, Data Analytics, Frontend Development, DevOps Engineering, Data Engineering, AI Engineering, and the short courses (Build with AI, AI Workflow Automation, Data Storytelling, Product Management, DSA). *Confirmed as matching your current programme list.*
@@ -222,7 +221,7 @@ Six layers, each independently runnable and testable.
 └──────────────────────┬─────────────────────────────────────┘
                        ▼
 ┌─ 5. AGGREGATE ─────────────────────────────────────────────┐
-│  skill_year · cooccurrence · **skill_diffusion**            │
+│  skill_year · **skill_diffusion**                            │
 └──────────────────────┬─────────────────────────────────────┘
                        ▼
 ┌─ 6. REPORT ────────────────────────────────────────────────┐
@@ -311,7 +310,6 @@ Without this correction the watchlist would just rank "how American is this tech
 
 **`job_skills`** — long: `(job_id, skill, n_mentions, matched_in)`.
 **`skill_year`** — `(skill, category, zindua_track, year, month, source_group, n_jobs_mentioning, n_jobs_total, pct_share)`.
-**`skill_cooccurrence`** — `(skill_a, skill_b, year, source_group, n_jobs, lift)`.
 **`skill_diffusion`** — as §6.
 
 ### Two rules that make or break this
@@ -371,7 +369,7 @@ job-market-skills-radar/
 │   ├── parse/          jsonld.py  dates.py  salary.py  seniority.py
 │   ├── store/          db.py  models.py  export.py
 │   ├── extract/        skills.py  dedupe.py  normalise.py
-│   ├── aggregate/      frames.py  trends.py  cooccurrence.py  diffusion.py
+│   ├── aggregate/      frames.py  trends.py  diffusion.py
 │   ├── report/         watchlist.py  track_brief.py
 │   └── cli.py
 ├── notebooks/

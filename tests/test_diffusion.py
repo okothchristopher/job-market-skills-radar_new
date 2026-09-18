@@ -408,23 +408,6 @@ def test_empty_input_is_handled(settings):
     assert "error" in diag
 
 
-# ----------------------------------------------------------- co-occurrence
-
-
-def test_cooccurrence_lift_above_one_means_paired():
-    job_skills = pd.DataFrame(
-        [
-            {"job_id": f"j{i}", "skill": s, "source_group": "GLOBAL"}
-            for i in range(10)
-            for s in (["React", "TypeScript"] if i < 8 else ["COBOL"])
-        ]
-    )
-    out = fr.build_cooccurrence(job_skills, "GLOBAL", min_pairs=2)
-    pair = out[(out.skill_a == "React") & (out.skill_b == "TypeScript")]
-    assert not pair.empty
-    assert pair.iloc[0]["lift"] > 1.0
-
-
 # ------------------------------------------- Wayback replay de-duplication
 
 

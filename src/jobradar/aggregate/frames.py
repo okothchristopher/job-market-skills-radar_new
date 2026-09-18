@@ -199,50 +199,6 @@ def build_skill_current(
     return build_skill_share(jobs, job_skills, ["source_group"], config.min_cell_size)
 
 
-def build_cooccurrence(
-    job_skills: pd.DataFrame, source_group: str, min_pairs: int = 5, top_n: int = 400
-) -> pd.DataFrame:
-    """Which skills are asked for together, with lift.
-
-    Lift above 1 means the pair appears together more than independence would
-    predict — that is the interesting signal for curriculum design, because it
-    says which skills should be taught in the same module.
-    """
-    subset = job_skills[job_skills["source_group"] == source_group]
-    if subset.empty:
-        return pd.DataFrame()
-
-    n_jobs = subset["job_id"].nunique()
-    counts = subset.groupby("skill")["job_id"].nunique()
-    keep = counts.nlargest(top_n).index
-    subset = subset[subset["skill"].isin(keep)]
-
-    # Pair up skills within each posting.
-    by_job = subset.groupby("job_id")["skill"].apply(lambda s: sorted(set(s)))
-    pairs: dict[tuple[str, str], int] = {}
-    for skills in by_job:
-        for i, a in enumerate(skills):
-            for b in skills[i + 1 :]:
-                pairs[(a, b)] = pairs.get((a, b), 0) + 1
-
-    rows = []
-    for (a, b), n in pairs.items():
-        if n < min_pairs:
-            continue
-        p_a, p_b, p_ab = counts[a] / n_jobs, counts[b] / n_jobs, n / n_jobs
-        rows.append(
-            {
-                "source_group": source_group,
-                "skill_a": a,
-                "skill_b": b,
-                "n_jobs": n,
-                "lift": round(p_ab / (p_a * p_b), 3) if p_a and p_b else None,
-            }
-        )
-    frame = pd.DataFrame(rows)
-    return frame.sort_values("n_jobs", ascending=False) if not frame.empty else frame
-
-
 def export(frames: dict[str, pd.DataFrame], out_dir: str | Path) -> dict[str, str]:
     """Write each frame as CSV (readable, diffable) and Parquet (typed, fast)."""
     out = Path(out_dir)
